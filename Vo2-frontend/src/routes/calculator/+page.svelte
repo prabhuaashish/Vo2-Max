@@ -4,6 +4,7 @@
 
     let raceDistance = 0;
     let finishTime = 0;
+    let type = "";
 
     // Create a writable store to hold the fetched data
     let resultData = writable(null);
@@ -14,7 +15,7 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ race_distance_km: raceDistance, finish_time_minutes: finishTime }),
+            body: JSON.stringify({ race_distance_km: raceDistance, finish_time_minutes: finishTime, type: type }),
         });
 
         if (response.ok) {
@@ -22,7 +23,7 @@
             resultData.set(data);
         } else {
             console.error('Error:', response.statusText);
-        }
+        }   
     }
 
     // Use onMount to fetch data when the component is mounted
@@ -39,14 +40,14 @@
 <label for="finishTime">Finish Time (minutes):</label>
 <input type="number" id="finishTime" bind:value={finishTime}><br>
 
+<label for="type">Type:</label>
+<input type="text" id="type" bind:value={type}><br>
+
 <button on:click={calculateVDOT}>Calculate</button><br>
 
 {#if $resultData !== null}
-<h2>Results:</h2>
-<p>VDOT: {$resultData.VO2_max.toFixed(2)}</p>
-<p>Easy Run Pace (min/km): {$resultData.easy_run_pace}</p>
-<p>Tempo Run Pace (min/km): {$resultData.tempo_run_pace}</p>
-<p>VO2 Max Pace (min/km): {$resultData.vo2_max_pace}</p>
-<p>Speed Form Pace (min/km): {$resultData.speed_form_pace}</p>
-<p>Long Run Pace (min/km): {$resultData.long_run_pace}</p>
+    <h2>Results:</h2>
+    <pre>{JSON.stringify($resultData, null, 2)}</pre>
+{:else}
+    <p>No data available.</p>
 {/if}

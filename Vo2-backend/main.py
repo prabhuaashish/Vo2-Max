@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -20,6 +20,7 @@ app.add_middleware(
 class UserInput(BaseModel):
     race_distance_km: float
     finish_time_minutes: float
+    type: str = "Daniels_old"
 
 class RaceType(str, Enum):
     marathon = "marathon"
@@ -35,14 +36,14 @@ class RaceType(str, Enum):
 class RaceTimeCalculation(BaseModel):
     frace: RaceType
     r1: RaceType
-    r1t_hours: int
-    r1t_minutes: int
-    r1t_seconds: int
+    r1t_hours: str
+    r1t_minutes: str
+    r1t_seconds: str
     r2: RaceType
-    r2t_hours: int
-    r2t_minutes: int
-    r2t_seconds: int
-    mpw: float
+    r2t_hours: str
+    r2t_minutes: str
+    r2t_seconds: str
+    mpw: str
     dunits: str
 
 
@@ -65,13 +66,13 @@ def calculate_race_time(data: RaceTimeCalculation):
     frace = data.frace
     r1 = data.r1
     r2 = data.r2
-    r1t_hours = data.r1t_hours
-    r1t_minutes = data.r1t_minutes
-    r1t_seconds = data.r1t_seconds
-    r2t_hours = data.r2t_hours
-    r2t_minutes = data.r2t_minutes
-    r2t_seconds = data.r2t_seconds
-    mpw = data.mpw
+    r1t_hours = int(data.r1t_hours) if data.r1t_hours else 0
+    r1t_minutes = int(data.r1t_minutes) if data.r1t_minutes else 0
+    r1t_seconds = int(data.r1t_seconds) if data.r1t_seconds else 0
+    r2t_hours = int(data.r2t_hours) if data.r2t_hours else 0
+    r2t_minutes = int(data.r2t_minutes) if data.r2t_minutes else 0
+    r2t_seconds = int(data.r2t_seconds) if data.r2t_seconds else 0
+    mpw = float(data.mpw) if data.mpw else 0.0  # Convert to float
     dunits = data.dunits
 
     # Function to convert time to seconds
@@ -196,13 +197,25 @@ def calculate_race_time(data: RaceTimeCalculation):
 def calculate_run_types(user_data: UserInput):
     D = user_data.race_distance_km * 1000  # Convert to meters
     T = user_data.finish_time_minutes  # Keep time in minutes
+    
+    if T == 0:
+        # Handle the case where finish_time_minutes is zero
+        return {"error": "Finish time cannot be zero."}
+    
     S = D / T  # Calculate speed in meters per minute
 
     vo2_max = (-4.60 + 0.182258 * S + 0.000104 * S**2) / (0.8 + 0.1894393 * math.exp(-0.012778 * T) + 0.2989558 * math.exp(-0.1932605 * T))
-    return calculate_run_types_from_Vo2(vo2_max)
 
-@app.get("/calculate_run_types_from_Vo2/")
-def calculate_run_types_from_Vo2(vo2_max:float):
+    if user_data.type == "Daniels_new":
+        return daniels_new_run_types(vo2_max)
+    elif user_data.type == "Pfitzinger":
+        return pfitzinger_run_types(vo2_max)
+    else:
+        return daniels_old_run_types(vo2_max)
+
+
+@app.get("/daniels_old_run_types/")
+def daniels_old_run_types(vo2_max:float):
     easy_run_pace = VO2ToVel(vo2_max * 0.7)
     tempo_run_pace = VO2ToVel(vo2_max * 0.88)
     vo2_max_pace = VO2ToVel(vo2_max)
@@ -218,9 +231,55 @@ def calculate_run_types_from_Vo2(vo2_max:float):
         "long_run_pace":    timeConvert(long_run_pace),
     }
 
+@app.get("/pfitzinger_run_types/")
+def pfitzinger_run_types(vo2_max:float):
+    Recovery = VO2ToVel(vo2_max * 0.7)
+    Aerobic_min = VO2ToVel(vo2_max * 0.64)
+    Aerobic_max = VO2ToVel(vo2_max * 0.75)
+    Long_Medium_min = VO2ToVel(vo2_max * 0.69)
+    Long_Medium_max = VO2ToVel(vo2_max * 0.78)
+    Marathon_min = VO2ToVel(vo2_max * 0.73)
+    Marathon_max = VO2ToVel(vo2_max * 0.83)
+    Lactate_threshold_min = VO2ToVel(vo2_max * 0.90)
+    Lactate_threshold_max = VO2ToVel(vo2_max * 0.92)
+    VO2_min = VO2ToVel(vo2_max * 0.95)
+    VO2_max = VO2ToVel(vo2_max * 1)
+
+    return {
+        "Recovery": timeConvert(Recovery),
+        "Aerobic": f"{Aerobic_min} - {Aerobic_max}",
+        "Long/Medium": f"{Long_Medium_min} - {Long_Medium_max}",
+        "Marathon": f"{Marathon_min} - {Marathon_max}",
+        "Lactate_threshold": f"{Lactate_threshold_min} - {Lactate_threshold_max}",
+        "VO2max": f"{VO2_min} - {VO2_max}",
+    }
+
+@app.get("/daniels_new_run_types/")
+def daniels_new_run_types(vo2_max:float):
+    Easy_min = VO2ToVel(vo2_max * 0.59)
+    Easy_max = VO2ToVel(vo2_max * 0.74)
+    Marathon_min = VO2ToVel(vo2_max * 0.75)
+    Marathon_max = VO2ToVel(vo2_max * 0.84)
+    Threshold_min = VO2ToVel(vo2_max * 0.83)
+    Threshold_max = VO2ToVel(vo2_max * 0.88)
+    Interval_min = VO2ToVel(vo2_max * 0.95)
+    Interval_max = VO2ToVel(vo2_max * 1)
+    Repetition_min = VO2ToVel(vo2_max * 1.05)
+    Repetition_max = VO2ToVel(vo2_max * 1.1)
+
+    return {
+        "Easy": f"{Easy_min} - {Easy_max}",
+        "Marathon": f"{Marathon_min} - {Marathon_max}",
+        "Threshold": f"{Threshold_min} - {Threshold_max}",
+        "Interval": f"{Interval_min} - {Interval_max}",
+        "Repetition": f"{Repetition_min} - {Repetition_max}",
+    }
+
 @app.post("/calculate-race-time/")
 async def calculate_race_time_route(data: RaceTimeCalculation):
-    result = calculate_race_time(data)
-    return JSONResponse(content=result)
-
+    try:
+        result = calculate_race_time(data)
+        return JSONResponse(content=result)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=str(e))
 
