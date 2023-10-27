@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from enum import Enum
+from typing import Optional
 import math
 
 app = FastAPI()
@@ -18,9 +19,11 @@ app.add_middleware(
 
 
 class UserInput(BaseModel):
-    race_distance_km: float
+    race_distance: float
+    units:str
     finish_time_minutes: float
-    type: str = "Daniels_old"
+    pace_type: str
+    type: str
 
 class RaceType(str, Enum):
     marathon = "marathon"
@@ -39,10 +42,10 @@ class RaceTimeCalculation(BaseModel):
     r1t_hours: str
     r1t_minutes: str
     r1t_seconds: str
-    r2: RaceType
-    r2t_hours: str
-    r2t_minutes: str
-    r2t_seconds: str
+    r2: Optional[RaceType] = None
+    r2t_hours: Optional[str] = None
+    r2t_minutes: Optional[str] = None
+    r2t_seconds: Optional[str] = None
     mpw: str
     dunits: str
 
@@ -50,8 +53,12 @@ class RaceTimeCalculation(BaseModel):
 def VO2ToVel(x):
     return 29.54 + 5.000663 * x - 0.007546 * x * x
 
-def timeConvert(speed):
-    ans = (1 / speed) * 1000
+def timeConvert(speed, pace_type):
+    if pace_type == "min/km":
+        ans = (1 / speed) * 1000
+    else:
+        ans = (1 / speed) * 1609
+        
     minutes = math.floor(ans)
     seconds = math.floor((ans - minutes) * 60)
     if (seconds > 9) :
@@ -195,7 +202,11 @@ def calculate_race_time(data: RaceTimeCalculation):
 
 @app.post("/calculate_run_types/")
 def calculate_run_types(user_data: UserInput):
-    D = user_data.race_distance_km * 1000  # Convert to meters
+    if user_data.units == "km": 
+        D = user_data.race_distance* 1000  # Convert to meters
+    else:
+        D = user_data.race_distance* 1609  # Convert to meters
+
     T = user_data.finish_time_minutes  # Keep time in minutes
     
     if T == 0:
@@ -205,17 +216,19 @@ def calculate_run_types(user_data: UserInput):
     S = D / T  # Calculate speed in meters per minute
 
     vo2_max = (-4.60 + 0.182258 * S + 0.000104 * S**2) / (0.8 + 0.1894393 * math.exp(-0.012778 * T) + 0.2989558 * math.exp(-0.1932605 * T))
+    
 
     if user_data.type == "Daniels_new":
-        return daniels_new_run_types(vo2_max)
+        return daniels_new_run_types(vo2_max, user_data.pace_type)
     elif user_data.type == "Pfitzinger":
-        return pfitzinger_run_types(vo2_max)
+        return pfitzinger_run_types(vo2_max, user_data.pace_type)
+    elif user_data.type == "Matt_Fitzgerald":
+        return matt_fitzgerald_run_types(vo2_max, user_data.pace_type)
     else:
-        return daniels_old_run_types(vo2_max)
-
+        return daniels_old_run_types(vo2_max, user_data.pace_type)
 
 @app.get("/daniels_old_run_types/")
-def daniels_old_run_types(vo2_max:float):
+def daniels_old_run_types(vo2_max:float, pace_type: str):   
     easy_run_pace = VO2ToVel(vo2_max * 0.7)
     tempo_run_pace = VO2ToVel(vo2_max * 0.88)
     vo2_max_pace = VO2ToVel(vo2_max)
@@ -223,16 +236,38 @@ def daniels_old_run_types(vo2_max:float):
     long_run_pace = VO2ToVel(vo2_max * 0.6)
 
     return {
-        "VO2_max": vo2_max,
-        "easy_run_pace":    timeConvert(easy_run_pace) ,
-        "tempo_run_pace":   timeConvert(tempo_run_pace),
-        "vo2_max_pace":     timeConvert(vo2_max_pace),
-        "speed_form_pace":  timeConvert(speed_form_pace),
-        "long_run_pace":    timeConvert(long_run_pace),
+        "VDOT": vo2_max,
+        "easy_run_pace":    timeConvert(easy_run_pace, pace_type),
+        "tempo_run_pace":   timeConvert(tempo_run_pace, pace_type),
+        "vo2_max_pace":     timeConvert(vo2_max_pace, pace_type),
+        "speed_form_pace":  timeConvert(speed_form_pace, pace_type),
+        "long_run_pace":    timeConvert(long_run_pace, pace_type),
+    }
+
+@app.get("/daniels_new_run_types/")
+def daniels_new_run_types(vo2_max:float, pace_type: str):
+    Easy_min = VO2ToVel(vo2_max * 0.59)
+    Easy_max = VO2ToVel(vo2_max * 0.74)
+    Marathon_min = VO2ToVel(vo2_max * 0.75)
+    Marathon_max = VO2ToVel(vo2_max * 0.84)
+    Threshold_min = VO2ToVel(vo2_max * 0.83)
+    Threshold_max = VO2ToVel(vo2_max * 0.88)
+    Interval_min = VO2ToVel(vo2_max * 0.95)
+    Interval_max = VO2ToVel(vo2_max * 1)
+    Repetition_min = VO2ToVel(vo2_max * 1.05)
+    Repetition_max = VO2ToVel(vo2_max * 1.1)
+
+    return {
+        "VDOT": vo2_max,
+        "Easy": f"{timeConvert(Easy_max, pace_type)} - {timeConvert(Easy_min, pace_type)}",
+        "Marathon": f"{timeConvert(Marathon_max, pace_type)} - {timeConvert(Marathon_min, pace_type)}",
+        "Threshold": f"{timeConvert(Threshold_max, pace_type)} - {timeConvert(Threshold_min, pace_type)}",
+        "Interval": f"{timeConvert(Interval_max, pace_type)} - {timeConvert(Interval_min, pace_type)}",
+        "Repetition": f"{timeConvert(Repetition_max, pace_type)} - {timeConvert(Repetition_min, pace_type)}",
     }
 
 @app.get("/pfitzinger_run_types/")
-def pfitzinger_run_types(vo2_max:float):
+def pfitzinger_run_types(vo2_max:float, pace_type: str):
     Recovery = VO2ToVel(vo2_max * 0.7)
     Aerobic_min = VO2ToVel(vo2_max * 0.64)
     Aerobic_max = VO2ToVel(vo2_max * 0.75)
@@ -246,34 +281,42 @@ def pfitzinger_run_types(vo2_max:float):
     VO2_max = VO2ToVel(vo2_max * 1)
 
     return {
-        "Recovery": timeConvert(Recovery),
-        "Aerobic": f"{Aerobic_min} - {Aerobic_max}",
-        "Long/Medium": f"{Long_Medium_min} - {Long_Medium_max}",
-        "Marathon": f"{Marathon_min} - {Marathon_max}",
-        "Lactate_threshold": f"{Lactate_threshold_min} - {Lactate_threshold_max}",
-        "VO2max": f"{VO2_min} - {VO2_max}",
+        "VDOT": vo2_max,
+        "Recovery": timeConvert(Recovery, pace_type),
+        "Aerobic": f"{timeConvert(Aerobic_max, pace_type)} - {timeConvert(Aerobic_min, pace_type)}",
+        "Long/Medium": f"{timeConvert(Long_Medium_max, pace_type)} - {timeConvert(Long_Medium_min, pace_type)}",
+        "Marathon": f"{timeConvert(Marathon_max, pace_type)} - {timeConvert(Marathon_min, pace_type)}",
+        "Lactate_threshold": f"{timeConvert(Lactate_threshold_max, pace_type)} - {timeConvert(Lactate_threshold_min, pace_type)}",
+        "VO2max": f"{timeConvert(VO2_max, pace_type)} - {timeConvert(VO2_min, pace_type)}",
     }
 
-@app.get("/daniels_new_run_types/")
-def daniels_new_run_types(vo2_max:float):
-    Easy_min = VO2ToVel(vo2_max * 0.59)
-    Easy_max = VO2ToVel(vo2_max * 0.74)
-    Marathon_min = VO2ToVel(vo2_max * 0.75)
-    Marathon_max = VO2ToVel(vo2_max * 0.84)
-    Threshold_min = VO2ToVel(vo2_max * 0.83)
-    Threshold_max = VO2ToVel(vo2_max * 0.88)
-    Interval_min = VO2ToVel(vo2_max * 0.95)
-    Interval_max = VO2ToVel(vo2_max * 1)
-    Repetition_min = VO2ToVel(vo2_max * 1.05)
-    Repetition_max = VO2ToVel(vo2_max * 1.1)
+@app.get("/matt_fitzgerald_run_types/")
+def matt_fitzgerald_run_types(vo2_max:float, pace_type: str):
+    Gray_zone_1 = VO2ToVel(vo2_max * 0.55)
+    Low_Aerobic_min = VO2ToVel(vo2_max * 0.55)
+    Low_Aerobic_max = VO2ToVel(vo2_max * 0.65)
+    Moderate_Aerobic_min = VO2ToVel(vo2_max * 0.65)
+    Moderate_Aerobic_max = VO2ToVel(vo2_max * 0.75)
+    High_Aerobic_min = VO2ToVel(vo2_max * 0.75)
+    High_Aerobic_max = VO2ToVel(vo2_max * 0.85)
+    Threshold_min = VO2ToVel(vo2_max * 0.85)
+    Threshold_max = VO2ToVel(vo2_max * 0.90)
+    Gray_zone_3_min = VO2ToVel(vo2_max * 0.90)
+    Gray_zone_3_max = VO2ToVel(vo2_max * 0.95)
+    VO2_min = VO2ToVel(vo2_max * 0.95)
+    VO2_max = VO2ToVel(vo2_max * 1)
 
     return {
-        "Easy": f"{Easy_min} - {Easy_max}",
-        "Marathon": f"{Marathon_min} - {Marathon_max}",
-        "Threshold": f"{Threshold_min} - {Threshold_max}",
-        "Interval": f"{Interval_min} - {Interval_max}",
-        "Repetition": f"{Repetition_min} - {Repetition_max}",
+        "VDOT": vo2_max,
+        "Gray_zone_1": timeConvert(Gray_zone_1, pace_type),
+        "Low_Aerobic": f"{timeConvert(Low_Aerobic_max, pace_type)} - {timeConvert(Low_Aerobic_min, pace_type)}",
+        "Moderate_Aerobic": f"{timeConvert(Moderate_Aerobic_max, pace_type)} - {timeConvert(Moderate_Aerobic_min, pace_type)}",
+        "High_Aerobic": f"{timeConvert(High_Aerobic_max, pace_type)} - {timeConvert(High_Aerobic_min, pace_type)}",
+        "Threshold": f"{timeConvert(Threshold_max, pace_type)} - {timeConvert(Threshold_min, pace_type)}",
+        "Gray_zone_3": f"{timeConvert(Gray_zone_3_max, pace_type)} - {timeConvert(Gray_zone_3_min, pace_type)}",
+        "VO2max": f"{timeConvert(VO2_max, pace_type)} - {timeConvert(VO2_min, pace_type)}",
     }
+
 
 @app.post("/calculate-race-time/")
 async def calculate_race_time_route(data: RaceTimeCalculation):
