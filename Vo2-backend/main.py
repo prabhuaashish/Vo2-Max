@@ -284,7 +284,7 @@ def pfitzinger_run_types(vo2_max:float, pace_type: str):
         "VDOT": vo2_max,
         "Recovery": timeConvert(Recovery, pace_type),
         "Aerobic": f"{timeConvert(Aerobic_max, pace_type)} - {timeConvert(Aerobic_min, pace_type)}",
-        "Long/Medium": f"{timeConvert(Long_Medium_max, pace_type)} - {timeConvert(Long_Medium_min, pace_type)}",
+        "Long_Medium": f"{timeConvert(Long_Medium_max, pace_type)} - {timeConvert(Long_Medium_min, pace_type)}",
         "Marathon": f"{timeConvert(Marathon_max, pace_type)} - {timeConvert(Marathon_min, pace_type)}",
         "Lactate_threshold": f"{timeConvert(Lactate_threshold_max, pace_type)} - {timeConvert(Lactate_threshold_min, pace_type)}",
         "VO2max": f"{timeConvert(VO2_max, pace_type)} - {timeConvert(VO2_min, pace_type)}",
