@@ -1,285 +1,272 @@
 <script>
-	import { onMount } from 'svelte';
-  
-	onMount(() => {
-	  // This code will only run on the client side
-	  const signUpButton = document.getElementById('signUp');
-	  const signInButton = document.getElementById('signIn');
-	  const container = document.getElementById('container');
-  
-	  signUpButton.addEventListener('click', () => {
-		container.classList.add("right-panel-active");
-	  });
-  
-	  signInButton.addEventListener('click', () => {
-		container.classList.remove("right-panel-active");
-	  });
-	});
-  </script>
-  
+    const signInBtn = document.getElementById("signIn");
+    const signUpBtn = document.getElementById("signUp");
+    const fistForm = document.getElementById("form1");
+    const secondForm = document.getElementById("form2");
+    const container = document.querySelector(".container");
 
-<body>	
-	<div class="container" id="container">
-		<div class="form-container sign-up-container">
-			<form action="#">
-				<h1>Create Account</h1>
-				<div class="social-container">
-					<a href="#" class="social">Google<i class="fab fa-google-plus-g"></i></a>
-					<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-				</div>
-				<span>or use your email for registration</span>
-				<input type="text" placeholder="Name" />
-				<input type="email" placeholder="Email" />
-				<input type="password" placeholder="Password" />
-				<input type="password" placeholder="Confirm Password" />
-				<button>Sign Up</button>
-			</form>
-		</div>
-		<div class="form-container sign-in-container">
-			<form action="#">
-				<h1>Sign in</h1>
-				<div class="social-container">
-					<a href="#" class="social"><i class="fa-brands fa-google"></i></a>
-					<a href="#" class="social"><i class="fa-brands fa-strava"></i></a>
-				</div>
-				<span>or use your account</span>
-				<input type="email" placeholder="Email" />
-				<input type="password" placeholder="Password" />
-				<a href="#">Forgot your password?</a>
-				<button>Sign In</button>
-			</form>
-		</div>
-		<div class="overlay-container">
-			<div class="overlay">
-				<div class="overlay-panel overlay-left">
-					<h1>Welcome Back!</h1>
-					<p>To keep connected with us please login with your personal info</p>
-					<button class="ghost" id="signIn">Sign In</button>
-				</div>
-				<div class="overlay-panel overlay-right">
-					<h1>Hello, Friend!</h1>
-					<p>Enter your personal details and start journey with us</p>
-					<button class="ghost" id="signUp">Sign Up</button>
-				</div>
-			</div>
-		</div>
-	</div>
+    signInBtn.addEventListener("click", () => {
+        container.classList.remove("right-panel-active");
+    });
+
+    signUpBtn.addEventListener("click", () => {
+        container.classList.add("right-panel-active");
+    });
+
+    fistForm.addEventListener("submit", (e) => e.preventDefault());
+    secondForm.addEventListener("submit", (e) => e.preventDefault());
+
+</script>
+
+<body>
+    <div class="container right-panel-active">
+        <!-- Sign Up -->
+        <div class="container__form container--signup">
+            <form action="#" class="form" id="form1">
+                <h2 class="form__title">Sign Up</h2>
+			<input type="text" placeholder="User" class="input" />
+			<input type="email" placeholder="Email" class="input" />
+			<input type="password" placeholder="Password" class="input" />
+			<button class="btn">Sign Up</button>
+            </form>
+        </div>
+    
+        <!-- Sign In -->
+        <div class="container__form container--signin">
+            <form action="#" class="form" id="form2">
+                <h2 class="form__title">Sign In</h2>
+                <input type="email" placeholder="Email" class="input" />
+                <input type="password" placeholder="Password" class="input" />
+                <a href="#" class="link">Forgot your password?</a>
+                <button class="btn">Sign In</button>
+            </form>
+        </div>
+        
+        <!-- Overlay -->
+        <div class="container__overlay">
+            <div class="overlay">
+                <div class="overlay__panel overlay--left">
+                    <button class="btn" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay__panel overlay--right">
+                    <button class="btn" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
-<style lang="scss">
-	@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+<style>
+    :root {
+	/* COLORS */
+	--white: #e9e9e9;
+	--gray: #333;
+	--blue: #0367a6;
+	--lightblue: #008997;
 
-	body {
-		background: #f6f5f7;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex-direction: column;
-		font-family: 'Montserrat', sans-serif;
-	}
+	/* RADII */
+	--button-radius: 0.7rem;
 
-	h1 {
-		font-weight: bold;
-		margin: 0;
-	}
+	/* SIZES */
+	--max-width: 758px;
+	--max-height: 420px;
 
-	p {
-		font-size: 14px;
-		font-weight: 100;
-		line-height: 20px;
-		letter-spacing: 0.5px;
-		margin: 20px 0 30px;
-	}
+	font-size: 16px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+		Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
 
-	span {
-		font-size: 12px;
-	}
+    body {
+        align-items: center;
+        background-color: var(--white);
+        background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        display: grid;
+        height: 100vh;
+        place-items: center;
+    }
 
-	a {
-		color: #333;
-		font-size: 14px;
-		text-decoration: none;
-		margin: 15px 0;
-	}
+    .form__title {
+        font-weight: 300;
+        margin: 0;
+        margin-bottom: 1.25rem;
+    }
 
-	button {
-		border-radius: 20px;
-		border: 1px solid #FF4B2B;
-		background-color: #FF4B2B;
-		color: #FFFFFF;
-		font-size: 12px;
-		font-weight: bold;
-		padding: 12px 45px;
-		letter-spacing: 1px;
-		text-transform: uppercase;
-		transition: transform 80ms ease-in;
-	}
+    .link {
+        color: var(--gray);
+        font-size: 0.9rem;
+        margin: 1.5rem 0;
+        text-decoration: none;
+    }
 
-	button:active {
-		transform: scale(0.95);
-	}
+    .container {
+        background-color: var(--white);
+        border-radius: var(--button-radius);
+        box-shadow: 0 0.9rem 1.7rem rgba(0, 0, 0, 0.25),
+            0 0.7rem 0.7rem rgba(0, 0, 0, 0.22);
+        height: var(--max-height);
+        max-width: var(--max-width);
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
 
-	button:focus {
-		outline: none;
-	}
+    .container__form {
+        height: 100%;
+        position: absolute;
+        top: 0;
+        transition: all 0.6s ease-in-out;
+    }
 
-	button.ghost {
-		background-color: transparent;
-		border-color: #FFFFFF;
-	}
+    .container--signin {
+        left: 0;
+        width: 50%;
+        z-index: 2;
+    }
 
-	form {
-		background-color: #FFFFFF;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-direction: column;
-		padding: 0 50px;
-		text-align: center;
-	}
+    .container.right-panel-active .container--signin {
+        transform: translateX(100%);
+    }
 
-	input {
-		background-color: #eee;
-		border: none;
-		padding: 12px 15px;
-		margin: 8px 0;
-		width: 100%;
-	}
+    .container--signup {
+        left: 0;
+        opacity: 0;
+        width: 50%;
+        z-index: 1;
+    }
 
-	.container {
-		background-color: #fff;
-		border-radius: 10px;
-		box-shadow: 0 14px 28px rgba(0,0,0,0.25), 
-				0 10px 10px rgba(0,0,0,0.22);
-		position: relative;
-		overflow: hidden;
-		width: 768px;
-		max-width: 100%;
-		min-height: 480px;
-	}
+    .container.right-panel-active .container--signup {
+        animation: show 0.6s;
+        opacity: 1;
+        transform: translateX(100%);
+        z-index: 5;
+    }
 
-	.form-container {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    transition: all 0.6s ease-in-out;
-	}
+    .container__overlay {
+        height: 100%;
+        left: 50%;
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        transition: transform 0.6s ease-in-out;
+        width: 50%;
+        z-index: 100;
+    }
 
-	.sign-in-container {
-		left: 0;
-		width: 50%;
-		z-index: 2;
-	}
+    .container.right-panel-active .container__overlay {
+        transform: translateX(-100%);
+    }
 
-	.container.right-panel-active .sign-in-container {
-		transform: translateX(100%);
-	}
+    .overlay {
+        background-color: var(--lightblue);
+        background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");
+        background-attachment: fixed;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        height: 100%;
+        left: -100%;
+        position: relative;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out;
+        width: 200%;
+    }
 
-	.sign-up-container {
-		left: 0;
-		width: 50%;
-		opacity: 0;
-		z-index: 1;
-	}
+    .container.right-panel-active .overlay {
+        transform: translateX(50%);
+    }
 
-	.container.right-panel-active .sign-up-container {
-		transform: translateX(100%);
-		opacity: 1;
-		z-index: 5;
-		animation: show 0.6s;
-	}
+    .overlay__panel {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: center;
+        position: absolute;
+        text-align: center;
+        top: 0;
+        transform: translateX(0);
+        transition: transform 0.6s ease-in-out;
+        width: 50%;
+    }
 
-	@keyframes show {
-		0%, 49.99% {
-		opacity: 0;
-		z-index: 1;
-		}
+    .overlay--left {
+        transform: translateX(-20%);
+    }
 
-		50%, 100% {
-		opacity: 1;
-		z-index: 5;
-		}
-	}
+    .container.right-panel-active .overlay--left {
+        transform: translateX(0);
+    }
 
-	.overlay-container {
-		position: absolute;
-		top: 0;
-		left: 50%;
-		width: 50%;
-		height: 100%;
-		overflow: hidden;
-		transition: transform 0.6s ease-in-out;
-		z-index: 100;
-	}
+    .overlay--right {
+        right: 0;
+        transform: translateX(0);
+    }
 
-	.container.right-panel-active .overlay-container{
-		transform: translateX(-100%);
-	}
+    .container.right-panel-active .overlay--right {
+        transform: translateX(20%);
+    }
 
-	.overlay {
-		background: #FF416C;
-		background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
-		background: linear-gradient(to right, #FF4B2B, #FF416C);
-		background-repeat: no-repeat;
-		background-size: cover;
-		background-position: 0 0;
-		color: #FFFFFF;
-		position: relative;
-		left: -100%;
-		height: 100%;
-		width: 200%;
-		transform: translateX(0);
-		transition: transform 0.6s ease-in-out;
-	}
+    .btn {
+        background-color: var(--blue);
+        background-image: linear-gradient(90deg, var(--blue) 0%, var(--lightblue) 74%);
+        border-radius: 20px;
+        border: 1px solid var(--blue);
+        color: var(--white);
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: bold;
+        letter-spacing: 0.1rem;
+        padding: 0.9rem 4rem;
+        text-transform: uppercase;
+        transition: transform 80ms ease-in;
+    }
 
-	.container.right-panel-active .overlay {
-		transform: translateX(50%);
-	}
+    .form > .btn {
+        margin-top: 1.5rem;
+    }
 
-	.overlay-panel {
-		position: absolute;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-direction: column;
-		padding: 0 40px;
-		text-align: center;
-		top: 0;
-		height: 100%;
-		width: 50%;
-		transform: translateX(0);
-		transition: transform 0.6s ease-in-out;
-	}
+    .btn:active {
+        transform: scale(0.95);
+    }
 
-	.overlay-left {
-		transform: translateX(-20%);
-	}
+    .btn:focus {
+        outline: none;
+    }
 
-	.container.right-panel-active .overlay-left {
-		transform: translateX(0);
-	}
+    .form {
+        background-color: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 0 3rem;
+        height: 100%;
+        text-align: center;
+    }
 
-	.overlay-right {
-		right: 0;
-		transform: translateX(0);
-	}
+    .input {
+        background-color: #fff;
+        border: none;
+        padding: 0.9rem 0.9rem;
+        margin: 0.5rem 0;
+        width: 100%;
+    }
 
-	.container.right-panel-active .overlay-right {
-		transform: translateX(20%);
-	}
+    @keyframes show {
+        0%,
+        49.99% {
+            opacity: 0;
+            z-index: 1;
+        }
 
-	.social-container {
-		margin: 20px 0;
-	}
-
-	.social-container a {
-		border: 1px solid #DDDDDD;
-		border-radius: 50%;
-		display: inline-flex;
-		justify-content: center;
-		align-items: center;
-		margin: 0 5px;
-		height: 40px;
-		width: 40px;
-	}
+        50%,
+        100% {
+            opacity: 1;
+            z-index: 5;
+        }
+    }
 </style>
