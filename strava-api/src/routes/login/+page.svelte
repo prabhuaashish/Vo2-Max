@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	let container;
 
@@ -37,7 +38,12 @@
 				<input type="email" placeholder="Email" class="input" />
 				<input type="password" placeholder="Password" class="input" />
 				<input type="password" placeholder="Confirm Password" class="input" />
-				<button>Sign Up</button>
+				<div class="btn">	
+					<Button element="a"
+					href="/api/auth/signup"
+					variant="solid"> Sign Up
+					</Button>
+				</div>
 			</form>
 		</div>
 
@@ -60,7 +66,10 @@
 				<input type="email" placeholder="Email" class="input" />
 				<input type="password" placeholder="Password" class="input" />
 				<a href="#" class="link">Forgot your password?</a>
-				<button>Sign In</button>
+				<Button element="a"
+					href="/api/auth/signin"
+					variant="solid"> Sign In
+				</Button>
 			</form>
 		</div>
 
@@ -70,12 +79,12 @@
 				<div class="overlay__panel overlay--left">
 					<h1>Welcome Back!</h1>
 					<p>To keep connected with us please login with your personal info</p>
-					<button class="btn" id="signIn">Sign In</button>
+					<Button variant="outline" id="signIn">Sign in</Button>
 				</div>
 				<div class="overlay__panel overlay--right">
 					<h1>Hello, Friend!</h1>
 					<p>Enter your personal details and start journey with us</p>
-					<button class="btn" id="signUp">Sign Up</button>
+					<Button variant="outline" id="signUp">Sign Up</Button>
 				</div>
 			</div>
 		</div>
@@ -281,35 +290,10 @@
 		width: 40px;
 	}
 
-    button {
-		border-radius: 20px;
-		border: 1px solid #FF4B2B;
-		background-color: #FF4B2B;
-		color: #FFFFFF;
-		font-size: 12px;
-		font-weight: bold;
-		padding: 12px 45px;
-		letter-spacing: 1px;
-		text-transform: uppercase;
-		transition: transform 80ms ease-in;
-    }
-
-    .form > button {
+    .btn {
         margin-top: 1.5rem;
     }
 
-    button:active {
-        transform: scale(0.95);
-    }
-
-    button:focus {
-        outline: none;
-    }
-	
-	button.btn {
-	background-color: transparent;
-	border-color: #FFFFFF;
-	}
 
     .form {
         background-color: var(--white);

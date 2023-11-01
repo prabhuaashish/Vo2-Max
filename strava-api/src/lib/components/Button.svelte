@@ -22,16 +22,20 @@
 	.button {
 		display: inline-block;
 		border: none;
-		font-weight: 600;
+		font-weight: bold;
 		font-size: functions.toRem(14);
 		border-radius: 20px;
 		cursor: pointer;
-		padding: 7px 15px;
+		padding: 12px 45px;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		transition: transform 80ms ease-in;
 		text-decoration: none;
+
 		&.button-solid {
-			background-color: var(--accent-color);
-			color: #000;
-			border: 2px solid var(--accent-color);
+			border: 2px solid #FF4B2B;
+			background-color: #FF4B2B;
+			color: #fff;
 		}
 		&.button-outline {
 			background: none;

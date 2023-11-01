@@ -21,7 +21,7 @@ export const GET = ({ cookies }) => {
     const queryParams = new URLSearchParams({
         response_type: 'code',
         client_id: STRAVA_APP_CLIENT_ID,
-        approval_prompt: 'force',
+        approval_prompt: '',
         scope,
         redirect_uri: `${BASE_URL}/api/auth/callback`,
         state,

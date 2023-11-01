@@ -10,10 +10,6 @@
         <h1>Record. Sweat. Share. Kudos.</h1>
 		<p>If you're active, Strava was made for you. Our mobile app and website enhance the experience of sport and connect millions of athletes from around the world. We're the social network for those who strive. Join us.</p>
         <div class="buttons">
-			<Button element="a"
-					href="/api/auth/signup"
-					variant="outline"> Sign Up
-			</Button>
 			<Button
 				element="a"
 				variant="outline"
