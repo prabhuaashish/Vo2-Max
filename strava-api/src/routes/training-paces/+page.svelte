@@ -4,6 +4,7 @@
 
     // Create writable stores for form inputs
     let raceDistance = writable(0);
+    let units = writable('km');
     let finishTimeHours = writable(0);
     let finishTimeMinutes = writable(0);
     let finishTimeSeconds = writable(0);
@@ -16,25 +17,24 @@
     async function calculateVDOT() {
         // Get the values of the form fields from the reactive variables
         const raceDistanceValue = $raceDistance;
-        const finishTimeHoursValue = $finishTimeHours;
-        const finishTimeMinutesValue = $finishTimeMinutes;
-        const finishTimeSecondsValue = $finishTimeSeconds;
+        const unitsValue = $units;
+        const finishTimeHoursValue = parseInt($finishTimeHours);
+        const finishTimeMinutesValue = parseInt($finishTimeMinutes);
+        const finishTimeSecondsValue = parseInt($finishTimeSeconds);
         const paceTypeValue = $paceType;
         const typeValue = $type;
 
         // Calculate the total finish time in minutes
         const finishTime = finishTimeHoursValue * 60 + finishTimeMinutesValue + finishTimeSecondsValue / 60;
 
-        const units = 'km'; // For simplicity, you can add reactivity for units as well
-
-        const response = await fetch('http://localhost:8000/calculate_run_types/', {
+        const response = await fetch('http://localhost:8000/calculate/run-types/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 race_distance: raceDistanceValue,
-                units: units,
+                units: unitsValue,
                 finish_time_minutes: finishTime,
                 pace_type: paceTypeValue,
                 type: typeValue,
@@ -61,8 +61,8 @@
 
         <div class="form-group">
             <label for="units">Units:</label>
-            <select id="units" name="units">
-                <option value="km">kilometres</option>
+            <select id="units" name="units" bind:value={$units}>
+                <option value="km">km</option>
                 <option value="miles">miles</option>
             </select>
         </div>
