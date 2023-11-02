@@ -1,6 +1,7 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 import math
-from .. import schemas
+from .. import schemas, models
 from fastapi.responses import JSONResponse
 
 
@@ -23,8 +24,9 @@ def timeConvert(speed, pace_type):
         # return '' + minutes + ':0' + seconds
         return f"{minutes}:0{seconds}"
 
-def calculate_race_time(data: schemas.RaceTimeCalculation):
-# Formulas to calculate race time
+
+def calculate_race_time(data: schemas.RaceTimeCalculation, db: Session):
+    # Formulas to calculate race time
     # Access the relevant variables from the data parameter
     frace = data.frace
     r1 = data.r1
@@ -66,7 +68,7 @@ def calculate_race_time(data: schemas.RaceTimeCalculation):
     # Dictionary to map race distances to miles
     race_distances = {
         'marathon': 26.21875,
-        'half': 13.109375,
+        'half_marathon': 13.109375,
         '10m': 10,
         '10k': 6.21371192,
         '5m': 5,
@@ -146,7 +148,32 @@ def calculate_race_time(data: schemas.RaceTimeCalculation):
     # Format pace values as "MM:SS/mile" and "MM:SS/km"
     pace_mile_formatted = f"{pace_mile}/mile"
     pace_km_formatted = f"{pace_km}/km"
+    pt_hms_formatted = str(pt_hms)
 
+    # Create an instance of the RaceTimePrediction model
+    race_time_prediction = models.RaceTimePrediction(
+        goal_race=data.frace,
+        recent_race=data.r1,
+        r1t_hours=r1t_hours,
+        r1t_minutes=r1t_minutes,
+        r1t_seconds=r1t_seconds,
+        another_race=data.r2,
+        r2t_hours=r2t_hours,
+        r2t_minutes=r2t_minutes,
+        r2t_seconds=r2t_seconds,
+        milage_per_week=data.mpw,
+        dunits=dunits,
+        predicted_time=pt_hms_formatted,
+        pace_mile=pace_mile_formatted,
+        pace_km=pace_km_formatted
+    )
+
+    # Add the instance to the database session and commit
+    db.add(race_time_prediction)
+    db.commit()
+    db.refresh(race_time_prediction)
+
+    # Return the calculated race time and other data
     return {
         "predictedTime": pt_hms,
         "frace": data.frace,
@@ -180,7 +207,6 @@ def calculate_run_types(user_data: schemas.RunType):
         return matt_fitzgerald_run_types(vo2_max, user_data.pace_type)
     else:
         return daniels_old_run_types(vo2_max, user_data.pace_type)
-
 
 def daniels_old_run_types(vo2_max:float, pace_type: str):   
     easy_run_pace = VO2ToVel(vo2_max * 0.7)

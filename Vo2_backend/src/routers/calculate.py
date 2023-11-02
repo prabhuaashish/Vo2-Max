@@ -7,6 +7,7 @@ from ..hashing import Hash
 from ..repository import calculations
 
 
+
 router = APIRouter(
     prefix="/calculate",
     tags=["Calculate"],
@@ -40,5 +41,6 @@ def calculate(vo2_max: float, pace_type: str, db: Session = Depends(get_db)):
 
 
 @router.post("/race-time/")
-def calculate(data: schemas.RaceTimeCalculation, db: Session = Depends(get_db)):
-    return calculations.calculate_race_time(data)
+def race_time(data: schemas.RaceTimeCalculation, db: Session = Depends(get_db)):
+    race_predictions =  calculations.calculate_race_time(data, db)
+    return race_predictions

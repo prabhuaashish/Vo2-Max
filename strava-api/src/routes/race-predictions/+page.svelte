@@ -64,7 +64,7 @@
                 <div class="field field-large">
                     <select id="frace" name="frace">
                       <option selected="" value="marathon">Marathon</option>
-                      <option value="half">Half Marathon</option>
+                      <option value="half_marathon">Half Marathon</option>
                       <option value="10m">10 Miles</option>
                       <option value="10k">10K</option>
                       <option value="5m">5 Miles</option>

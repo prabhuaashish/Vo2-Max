@@ -45,7 +45,7 @@ class RunType(BaseModel):
 
 class RaceType(str, Enum):
     marathon = "marathon"
-    half = "half"
+    half_marathon = "half_marathon"
     m10 = "10m"
     m10k = "10k"
     m5 = "5m"
@@ -69,4 +69,6 @@ class RaceTimeCalculation(BaseModel):
 
     class Config:
         orm_mode = True
+
+
 
