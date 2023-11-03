@@ -36,7 +36,9 @@ class TokenData(BaseModel):
 class RunType(BaseModel):
     race_distance: float
     units:str
-    finish_time_minutes: float
+    finish_time_hours: int
+    finish_time_minutes: int
+    finish_time_seconds: int
     pace_type: str
     type: str
 

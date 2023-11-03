@@ -37,7 +37,6 @@
 				<input type="text" placeholder="Name" class="input" />
 				<input type="email" placeholder="Email" class="input" />
 				<input type="password" placeholder="Password" class="input" />
-				<input type="password" placeholder="Confirm Password" class="input" />
 				<div class="btn">	
 					<Button element="a"
 					href="/api/auth/signup"
@@ -109,17 +108,16 @@
     }
 
     body {
-        background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");
+        /* background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");
         background-attachment: fixed;
         background-position: center;
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: cover; */
         display: grid;
         height: 50vh;
 		width: 50vw;
 		margin-left: 8%;
-        /* place-items: center; */
-        padding: 0; /* Remove default padding */
+        padding: 0;
     }
 
 	h1 {

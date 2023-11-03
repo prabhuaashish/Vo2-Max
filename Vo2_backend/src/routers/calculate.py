@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends
 from typing import List
 from sqlalchemy.orm import Session
 from .. import schemas
-from ..database import engine, get_db
-from ..hashing import Hash
+from ..database import  get_db
 from ..repository import calculations
 
 
@@ -14,10 +13,15 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+@router.post("/race-time/")
+def race_time(data: schemas.RaceTimeCalculation, db: Session = Depends(get_db)):
+    race_predictions =  calculations.calculate_race_time(data, db)
+    return race_predictions
 
 @router.post("/run-types/")
-def calculate(data: schemas.RunType, db: Session = Depends(get_db)):
-    return calculations.calculate_run_types(data)
+def run_types(data: schemas.RunType, db: Session = Depends(get_db)):
+    run_predictions = calculations.calculate_run_types(data, db)
+    return run_predictions
 
 
 @router.get("/daniels_old_run_types/")
@@ -40,7 +44,3 @@ def calculate(vo2_max: float, pace_type: str, db: Session = Depends(get_db)):
     return calculations.matt_fitzgerald_run_types(vo2_max, pace_type)
 
 
-@router.post("/race-time/")
-def race_time(data: schemas.RaceTimeCalculation, db: Session = Depends(get_db)):
-    race_predictions =  calculations.calculate_race_time(data, db)
-    return race_predictions

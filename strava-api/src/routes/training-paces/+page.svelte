@@ -24,8 +24,6 @@
         const paceTypeValue = $paceType;
         const typeValue = $type;
 
-        // Calculate the total finish time in minutes
-        const finishTime = finishTimeHoursValue * 60 + finishTimeMinutesValue + finishTimeSecondsValue / 60;
 
         const response = await fetch('http://localhost:8000/calculate/run-types/', {
             method: 'POST',
@@ -35,7 +33,9 @@
             body: JSON.stringify({
                 race_distance: raceDistanceValue,
                 units: unitsValue,
-                finish_time_minutes: finishTime,
+                finish_time_hours: finishTimeHoursValue,
+                finish_time_minutes: finishTimeMinutesValue,
+                finish_time_seconds: finishTimeSecondsValue,
                 pace_type: paceTypeValue,
                 type: typeValue,
             }),
@@ -56,7 +56,7 @@
     <form>
         <div class="form-group">
             <label for="raceDistance">Recent Race Distance:</label>
-            <input type="number" id="raceDistance" name="raceDistance" bind:value={$raceDistance}>
+            <input type="float" id="raceDistance" name="raceDistance" bind:value={$raceDistance}>
         </div>
 
         <div class="form-group">
@@ -99,56 +99,57 @@
     </form>
 </div>
 
+<!-- Output -->
 {#if $resultData !== null}
     <div class="result">
-        {#if $type === "Daniels_old" && $resultData.VDOT !== undefined}
+        {#if $type === "Daniels_old"}
             <div class="result-item">
                 <h3>Daniels Old Calculator</h3>
-                <p><strong>VDOT:</strong> {$resultData.VDOT.toFixed(2)}</p>
-                <p><strong>Easy Run Pace:</strong> {$resultData.easy_run_pace} {$paceType}</p>
-                <p><strong>Tempo Run Pace:</strong> {$resultData.tempo_run_pace} {$paceType}</p>
-                <p><strong>VO2 Max Pace:</strong> {$resultData.vo2_max_pace} {$paceType}</p>
-                <p><strong>Speed Form Pace:</strong> {$resultData.speed_form_pace} {$paceType}</p>
-                <p><strong>Long Run Pace:</strong> {$resultData.long_run_pace} {$paceType}</p>
+                <p><strong>VDOT:</strong> {$resultData[0].toFixed(2)}</p>
+                <p><strong>Easy Run Pace:</strong> {$resultData[1].easy_run_pace}</p>
+                <p><strong>Tempo Run Pace:</strong> {$resultData[1].tempo_run_pace}</p>
+                <p><strong>VO2 Max Pace:</strong> {$resultData[1].vo2_max_pace}</p>
+                <p><strong>Speed Form Pace:</strong> {$resultData[1].speed_form_pace}</p>
+                <p><strong>Long Run Pace:</strong> {$resultData[1].long_run_pace}</p>
             </div>
         {/if}
 
-        {#if $type === "Daniels_new" && $resultData.VDOT !== undefined}
+        {#if $type === "Daniels_new"}
             <div class="result-item">
                 <h3>Daniels New Calculator</h3>
-                <p><strong>VDOT:</strong> {$resultData.VDOT.toFixed(2)}</p>
-                <p><strong>Easy Run Pace (Range):</strong> {$resultData.Easy} {$paceType}</p>
-                <p><strong>Marathon Pace (Range):</strong> {$resultData.Marathon} {$paceType}</p>
-                <p><strong>Threshold Pace (Range):</strong> {$resultData.Threshold} {$paceType}</p>
-                <p><strong>Interval Pace (Range):</strong> {$resultData.Interval} {$paceType}</p>
-                <p><strong>Repetition Pace (Range):</strong> {$resultData.Repetition} {$paceType}</p>
+                <p><strong>VDOT:</strong> {$resultData[0].toFixed(2)}</p>
+                <p><strong>Easy Run Pace (Range):</strong> {$resultData[1].easy_run_pace}</p>
+                <p><strong>Marathon Pace (Range):</strong> {$resultData[1].marathon_pace}</p>
+                <p><strong>Threshold Pace (Range):</strong> {$resultData[1].threshold_pace}</p>
+                <p><strong>Interval Pace (Range):</strong> {$resultData[1].interval_pace}</p>
+                <p><strong>Repetition Pace (Range):</strong> {$resultData[1].repetition_pace}</p>
             </div>
         {/if}
 
-        {#if $type === "Pfitzinger" && $resultData.VDOT !== undefined}
+        {#if $type === "Pfitzinger"}
             <div class="result-item">
                 <h3>Pfitzinger Calculator</h3>
-                <p><strong>VDOT:</strong> {$resultData.VDOT.toFixed(2)}</p>
-                <p><strong>Recovery Run Pace:</strong> {$resultData.Recovery} {$paceType}</p>
-                <p><strong>Aerobic Run Pace (Range):</strong> {$resultData.Aerobic} {$paceType}</p>
-                <p><strong>Long/Medium Run Pace (Range):</strong> {$resultData.Long_Medium} {$paceType}</p>
-                <p><strong>Marathon Pace (Range):</strong> {$resultData.Marathon} {$paceType}</p>
-                <p><strong>Lactate Threshold Pace (Range):</strong> {$resultData.Lactate_threshold} {$paceType}</p>
-                <p><strong>VO2 Max Pace (Range):</strong> {$resultData.VO2max} {$paceType}</p>
+                <p><strong>VDOT:</strong> {$resultData[0].toFixed(2)}</p>
+                <p><strong>Recovery Run Pace:</strong> {$resultData[1].recovery_run_pace}</p>
+                <p><strong>Aerobic Run Pace (Range):</strong> {$resultData[1].aerobic_run_pace}</p>
+                <p><strong>Long/Medium Run Pace (Range):</strong> {$resultData[1].long_medium_run_pace}</p>
+                <p><strong>Marathon Pace (Range):</strong> {$resultData[1].marathon_pace}</p>
+                <p><strong>Lactate Threshold Pace (Range):</strong> {$resultData[1].lactate_threshold_pace}</p>
+                <p><strong>VO2 Max Pace (Range):</strong> {$resultData[1].vo2max_pace}</p>
             </div>
         {/if}
 
-        {#if $type === "Matt_Fitzgerald" && $resultData.VDOT !== undefined}
+        {#if $type === "Matt_Fitzgerald"}
             <div class="result-item">
                 <h3>Matt Fitzgerald Calculator</h3>
-                <p><strong>VDOT:</strong> {$resultData.VDOT.toFixed(2)}</p>
-                <p><strong>Gray Zone 1 Pace:</strong> {$resultData.Gray_zone_1} {$paceType}</p>
-                <p><strong>Low Aerobic Run Pace (Range):</strong> {$resultData.Low_Aerobic} {$paceType}</p>
-                <p><strong>Moderate Aerobic Run Pace (Range):</strong> {$resultData.Moderate_Aerobic} {$paceType}</p>
-                <p><strong>High Aerobic Run Pace (Range):</strong> {$resultData.High_Aerobic} {$paceType}</p>
-                <p><strong>Threshold Pace (Range):</strong> {$resultData.Threshold} {$paceType}</p>
-                <p><strong>Gray Zone 3 Pace (Range):</strong> {$resultData.Gray_zone_3} {$paceType}</p>
-                <p><strong>VO2 Max Pace (Range):</strong> {$resultData.VO2max} {$paceType}</p>
+                <p><strong>VDOT:</strong> {$resultData[0].toFixed(2)}</p>
+                <p><strong>Gray Zone 1 Pace:</strong> {$resultData[1].gray_zone_1_pace}</p>
+                <p><strong>Low Aerobic Run Pace (Range):</strong> {$resultData[1].low_aerobic_run_pace}</p>
+                <p><strong>Moderate Aerobic Run Pace (Range):</strong> {$resultData[1].moderate_aerobic_run_pace}</p>
+                <p><strong>High Aerobic Run Pace (Range):</strong> {$resultData[1].high_aerobic_run_pace}</p>
+                <p><strong>Threshold Pace (Range):</strong> {$resultData[1].threshold_pace}</p>
+                <p><strong>Gray Zone 3 Pace (Range):</strong> {$resultData[1].gray_zone_3_pace}</p>
+                <p><strong>VO2 Max Pace (Range):</strong> {$resultData[1].vo2max_pace}</p>
             </div>
         {/if}
     </div>
@@ -181,7 +182,7 @@
         font-weight: bold;
     }
 
-    input[type="number"], select {
+    input, select {
         padding: 10px;
         border: 1px solid #ccc;
         border-radius: 3px;

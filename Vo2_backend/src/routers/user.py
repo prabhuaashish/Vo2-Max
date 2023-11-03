@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 from .. import schemas
-from ..database import engine, get_db
+from ..database import get_db
 from ..hashing import Hash
 from ..models import User
 
@@ -13,7 +13,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/user/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     # Hash the password
     hashedPassword = Hash.bcrypt(user.password)
@@ -27,7 +27,7 @@ def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     # Return the user as a Pydantic model
     return db_user
 
-@router.get("/user/{user_id}", response_model=schemas.UserResponse)
+@router.get("/{user_id}", response_model=schemas.UserResponse)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
