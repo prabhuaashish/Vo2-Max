@@ -1,4 +1,6 @@
+<p> hello world</p>
 
+<!-- 
 <script>
 	import { ChevronDown } from "lucide-svelte";
 	import Card from "$lib/components/Card.svelte";
@@ -93,4 +95,4 @@
 			}
 		}
 	}
-</style>
+</style> -->

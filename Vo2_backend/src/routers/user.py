@@ -13,7 +13,7 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     # Hash the password
     hashedPassword = Hash.bcrypt(user.password)

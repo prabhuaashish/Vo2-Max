@@ -1,8 +1,19 @@
 <script>
 	import { onMount } from 'svelte';
+    import { error, redirect } from '@sveltejs/kit';
 	import Button from '$lib/components/Button.svelte';
+    import Cookies from 'js-cookie';    
 
 	let container;
+    let name = '';
+    let email = '';
+    let password = '';
+    let errorMessage = '';
+    let signupSuccess = false;
+
+    function clearError() {
+        errorMessage = '';
+    }
 
 	onMount(() => {
 		const signInBtn = document.getElementById('signIn');
@@ -25,30 +36,87 @@
 		fistForm.addEventListener('submit', (e) => e.preventDefault());
 		secondForm.addEventListener('submit', (e) => e.preventDefault());
 	});
+
+    async function signup() {
+        console.log('reached here')
+        try {
+            const response = await fetch('http://localhost:8000/user', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, password }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 201) {
+               // Successful signup, redirect to success page with a success message
+                window.location.href = '/login';
+                signupSuccess = true;
+            } else if (response.status === 400) {
+                // Validation error
+                const errorData = await response.json();
+                errorMessage = errorData.detail;
+            } else {
+                // Handle other errors (network errors, server issues, etc.)
+                errorMessage = 'An error occurred while signing up. Please try again later.';
+            }
+        } catch (error) {
+            errorMessage = 'An error occurred while signing up. Please try again later.';
+        }
+    }
+
+
+    async function login() {
+        try {
+            const response = await fetch('http://localhost:8000/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ username: email, password: password }),
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const responseJSON = await response.json();
+
+            if (responseJSON.error) {
+                throw error(400, responseJSON.error_description);
+            }
+
+            Cookies.set('jwt_token', responseJSON.access_token);
+
+            window.location.href = '/';
+
+        } catch (error) {
+            errorMessage = 'An error occurred while Logging In, Please try again.';
+        }
+    }
+
 </script>
 
-  
+
+
 <body>
 	<div class="container right-panel-active">
 		<!-- Sign Up -->
 		<div class="container__form container--signup">
-			<form action="#" class="form" id="form1">
+			<form class="form" id="form1" on:submit|preventDefault={signup}>
 				<h2 class="form__title">Create Account</h2>
-				<input type="text" placeholder="Name" class="input" />
-				<input type="email" placeholder="Email" class="input" />
-				<input type="password" placeholder="Password" class="input" />
-				<div class="btn">	
-					<Button element="a"
-					href="/api/auth/signup"
-					variant="solid"> Sign Up
-					</Button>
-				</div>
+                {#if signupSuccess}
+                    <div class="success-message">Signup was successful!</div>
+                {:else}
+                    <div class="error-message">{errorMessage}</div>
+                {/if}
+				<input type="text" id="name" placeholder="Name" class="input" bind:value={name} on:input={clearError} />
+                <input type="email" id="signupEmail" placeholder="Email" class="input" bind:value={email} on:input={clearError} />
+                <input type="password" id="signupPassword" placeholder="Password" class="input" bind:value={password} on:input={clearError} />
+				<button type="submit" variant="solid" >
+                    Sign Up
+                </button>
 			</form>
 		</div>
 
 		<!-- Sign In -->
 		<div class="container__form container--signin">
-			<form action="#" class="form" id="form2">
+			<form class="form" id="form2" on:submit|preventDefault={login}>
 				<h1 class="form__title">Sign In</h1>
 				<div class="social-container">
 					<a href="#" class="social"> 
@@ -62,13 +130,12 @@
 						</svg>
 					</a>
 				</div>
-				<input type="email" placeholder="Email" class="input" />
-				<input type="password" placeholder="Password" class="input" />
+				<input type="email" id="signinEmail" placeholder="Email" class="input" bind:value={email}/>
+				<input type="password" id="signinPassword" placeholder="Password" class="input" bind:value={password}/>
 				<a href="#" class="link">Forgot your password?</a>
-				<Button element="a"
-					href="/api/auth/signin"
-					variant="solid"> Sign In
-				</Button>
+				<button type="submit"  variant="solid"> 
+                    Sign In
+				</button>
 			</form>
 		</div>
 
@@ -78,12 +145,12 @@
 				<div class="overlay__panel overlay--left">
 					<h1>Welcome Back!</h1>
 					<p>To keep connected with us please login with your personal info</p>
-					<Button variant="outline" id="signIn">Sign in</Button>
+					<button class="btn " id="signIn">Sign in</button>
 				</div>
 				<div class="overlay__panel overlay--right">
 					<h1>Hello, Friend!</h1>
 					<p>Enter your personal details and start journey with us</p>
-					<Button variant="outline" id="signUp">Sign Up</Button>
+					<button class="btn" id="signUp">Sign Up</button>
 				</div>
 			</div>
 		</div>
@@ -225,7 +292,7 @@
 
     .overlay {
 		background: #FF416C;
-		background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
+		background: -webkit-linear-gradient(to left, #FF4B2B, #FF416C);
 		background: linear-gradient(to right, #FF4B2B, #FF416C);
 		background-repeat: no-repeat;
 		background-size: cover;
@@ -288,9 +355,37 @@
 		width: 40px;
 	}
 
-    .btn {
+    button {
+        background-color: #FF4B2B;
+        /* background-image: linear-gradient(90deg, var(--blue) 0%, var(--lightblue) 74%); */
+        border-radius: 20px;
+        border: 1px solid #FF4B2B;
+        color: white;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: bold;
+        letter-spacing: 0.1rem;
+        padding: 0.9rem 4rem;
+        text-transform: uppercase;
+        transition: transform 80ms ease-in;
+    }
+
+    .form > button {
         margin-top: 1.5rem;
     }
+
+    button:active {
+        transform: scale(0.95);
+    }
+
+    button:focus {
+        outline: none;
+    }
+    button.btn{
+        background-color: transparent;
+        border-color: #FFFFFF;
+
+    } 
 
 
     .form {
@@ -311,6 +406,18 @@
         margin: 0.5rem 0;
         width: 100%;
 		height: 40px;
+    }
+
+    .success-message {
+        color: #4CAF50; /* White text color */
+        padding: 10px; /* Padding for some space around the message */
+        text-align: center; /* Center align the text */
+    }
+
+    .error-message {
+        color: #f44336; /* White text color */
+        padding: 10px; /* Padding for some space around the message */
+        text-align: center; /* Center align the text */
     }
 
 </style>
