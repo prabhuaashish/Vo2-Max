@@ -37,24 +37,28 @@
 <svelte:window bind:scrollY />
 
 <svelte:head>
-  <title>Strava{$page.data.title ? ` - ${$page.data.title}` : ''}</title>
+  <title>{$page.data.title ? ` - ${$page.data.title}` : ''}</title>
 </svelte:head>
 
-<div id="main">
-	{#if user}
-		<div id="topbar" bind:this={topbar}>
-        <div class="topbar-bg" 
-			style:background-color=  {$page.data.color ? $page.data.color : "var(--header-color)"} 
-			style:opacity={`${headerOpacity}`} /> 
-		<Header />
-      </div>
-	{/if}
-	<div id="content">
-		<main id="main-content">
-			<slot />
-		</main>
+{#key $page.url.pathname}
+	<div id="main">
+		
+		{#if user}
+			<div id="topbar" bind:this={topbar}>
+			<div class="topbar-bg" 
+				style:background-color=  {$page.data.color ? $page.data.color : "var(--header-color)"} 
+				style:opacity={`${headerOpacity}`} /> 
+			<Header />
+		</div>
+		{/if}
+		<div id="content">
+			<main id="main-content">
+				<slot />
+			</main>
+		</div>
+		
 	</div>
-</div>
+{/key}
 
 <style lang="scss">
 	#main {

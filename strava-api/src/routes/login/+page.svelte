@@ -1,18 +1,34 @@
 <script>
 	import { onMount } from 'svelte';
-    import { error, redirect } from '@sveltejs/kit';
-	import Button from '$lib/components/Button.svelte';
-    import Cookies from 'js-cookie';    
+    import {error} from '@sveltejs/kit';
+    import Cookies from 'js-cookie';
+    import { goto } from '$app/navigation';
 
 	let container;
+
     let name = '';
     let email = '';
     let password = '';
+
     let errorMessage = '';
     let signupSuccess = false;
+    let signupErrors = [];
+    let loginErrors = [];
 
     function clearError() {
         errorMessage = '';
+    }
+
+    function isValidEmail(email) {
+    // Check if the email contains '@' and '.'
+        if (email.includes('@') && email.includes('.')) {
+            // Check if '@' comes before '.'
+            if (email.indexOf('@') < email.lastIndexOf('.')) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
 	onMount(() => {
@@ -38,55 +54,92 @@
 	});
 
     async function signup() {
-        console.log('reached here')
-        try {
-            const response = await fetch('http://localhost:8000/user', {
-                method: 'POST',
-                body: JSON.stringify({ name, email, password }),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+        signupErrors = [];
 
-            if (response.status === 201) {
-               // Successful signup, redirect to success page with a success message
-                window.location.href = '/login';
-                signupSuccess = true;
-            } else if (response.status === 400) {
-                // Validation error
-                const errorData = await response.json();
-                errorMessage = errorData.detail;
-            } else {
-                // Handle other errors (network errors, server issues, etc.)
+        if (name === '') {
+            signupErrors.push('Name is required');
+        }
+
+        if (email === '') {
+            signupErrors.push('Email is required');
+        } else if (!isValidEmail(email)) {
+            signupErrors.push('Invalid email format');
+        }
+
+        if (password === '') {
+            signupErrors.push('Password is required');
+        } else if (password.length < 6) {
+            signupErrors.push('Password must be at least 6 characters');
+        }
+
+        if (signupErrors.length === 0) {
+            try {
+                const response = await fetch('http://localhost:8000/user', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, email, password }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.status === 201) {
+                    signupSuccess = true;
+                    location.reload()
+
+                } else if (response.status === 400) {
+                    // Validation error
+                    const errorData = await response.json();
+                    errorMessage = errorData.detail;
+
+                } else {
+                    // Handle other errors (network errors, server issues, etc.)
+                    errorMessage = 'An error occurred while signing up. Please try again later.';
+                }
+            } catch (error) {
                 errorMessage = 'An error occurred while signing up. Please try again later.';
             }
-        } catch (error) {
-            errorMessage = 'An error occurred while signing up. Please try again later.';
-        }
+        }    
     }
 
 
     async function login() {
-        try {
-            const response = await fetch('http://localhost:8000/auth/login', {
-                method: 'POST',
-                body: JSON.stringify({ username: email, password: password }),
-                headers: {
-                    'Content-Type': 'application/json',
+        loginErrors = [];
+
+        if (email === '') {
+            loginErrors.push('Email is required');
+        } else if (!isValidEmail(email)) {
+            loginErrors.push('Invalid email format');
+        }
+
+        if (password === '') {
+            loginErrors.push('Password is required');
+        }
+
+        if (loginErrors.length === 0) {
+
+            try {
+                const response = await fetch('http://localhost:8000/auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username: email, password: password }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                const responseJSON = await response.json();
+
+                if (responseJSON.error) {
+                    throw error(400, responseJSON.error_description);
                 }
-            });
-            const responseJSON = await response.json();
 
-            if (responseJSON.error) {
-                throw error(400, responseJSON.error_description);
+                Cookies.set('jwt_token', responseJSON.access_token);
+                Cookies.set('user_id', responseJSON.user_id);
+                console.log("set up cookies completed"); 
+                // let key = Math.random()
+                // console.log(key)
+                goto('/');
+            } catch (error) {
+                errorMessage = 'An error occurred while Logging In, Please try again.';
             }
-
-            Cookies.set('jwt_token', responseJSON.access_token);
-
-            window.location.href = '/';
-
-        } catch (error) {
-            errorMessage = 'An error occurred while Logging In, Please try again.';
         }
     }
 
@@ -108,9 +161,18 @@
 				<input type="text" id="name" placeholder="Name" class="input" bind:value={name} on:input={clearError} />
                 <input type="email" id="signupEmail" placeholder="Email" class="input" bind:value={email} on:input={clearError} />
                 <input type="password" id="signupPassword" placeholder="Password" class="input" bind:value={password} on:input={clearError} />
-				<button type="submit" variant="solid" >
-                    Sign Up
-                </button>
+                <!-- Display validation errors for the signup form -->
+                {#if signupErrors.length > 0}
+                    <div class="error-message">
+                        <ul>
+                            {#each signupErrors as error (error)}
+                                <li>{error}</li>
+                            {/each}
+                        </ul>
+                    </div>
+                {/if}
+
+				<button type="submit"> Sign Up </button>
 			</form>
 		</div>
 
@@ -130,12 +192,20 @@
 						</svg>
 					</a>
 				</div>
-				<input type="email" id="signinEmail" placeholder="Email" class="input" bind:value={email}/>
-				<input type="password" id="signinPassword" placeholder="Password" class="input" bind:value={password}/>
-				<a href="#" class="link">Forgot your password?</a>
-				<button type="submit"  variant="solid"> 
-                    Sign In
-				</button>
+				<input type="email" id="signinEmail" placeholder="Email" class="input" bind:value={email} on:input={clearError}/>
+				<input type="password" id="signinPassword" placeholder="Password" class="input" bind:value={password} on:input={clearError}/>
+                <!-- Display validation errors for the login form -->
+                {#if loginErrors.length > 0}
+                    <div class="error-message">
+                        <ul>
+                            {#each loginErrors as error (error)}
+                                <li>{error}</li>
+                            {/each}
+                        </ul>
+                    </div>
+                {/if}
+
+				<button type="submit"> Sign In </button>
 			</form>
 		</div>
 

@@ -12,12 +12,23 @@ class CreateUser(BaseModel):
         orm_mode = True
 
 class UserResponse(BaseModel):
+    user_id: int
+    name: str
+    email: str
+    access_token: str
+    token_type: str
+
+    class Config:
+        orm_mode = True
+
+class UserDetails(BaseModel):
     id: int
     name: str
     email: str
 
     class Config:
         orm_mode = True
+
 
 class Login(BaseModel):
     username: str

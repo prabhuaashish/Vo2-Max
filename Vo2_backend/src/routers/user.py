@@ -27,10 +27,10 @@ def create_user(user: schemas.CreateUser, db: Session = Depends(get_db)):
     # Return the user as a Pydantic model
     return db_user
 
-@router.get("/{user_id}", response_model=schemas.UserResponse)
+@router.get("/{user_id}", response_model=schemas.UserDetails)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.id == user_id).first()
-    if user is None:
+    if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     # Return the user details as a Pydantic model

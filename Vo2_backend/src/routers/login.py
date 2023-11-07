@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.post("/login")
+@router.post("/login", response_model=schemas.UserResponse)
 async def login(request: schemas.Login, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.username).first()
     if not user:
@@ -27,4 +27,14 @@ async def login(request: schemas.Login, db: Session = Depends(get_db)):
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(data={"sub": user.email}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    # Include the user information in the response
+    response_data = {
+        "user_id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "access_token": access_token,
+        "token_type": "bearer",
+    }
+
+    return response_data

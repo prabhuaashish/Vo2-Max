@@ -1,7 +1,6 @@
-<p> hello world</p>
+<h1>Home Page</h1>
 
-<!-- 
-<script>
+<!-- <script>
 	import { ChevronDown } from "lucide-svelte";
 	import Card from "$lib/components/Card.svelte";
 
