@@ -3,6 +3,7 @@
     import {error} from '@sveltejs/kit';
     import Cookies from 'js-cookie';
     import { goto } from '$app/navigation';
+    import { user } from '$stores/auth';
 
 	let container;
 
@@ -134,9 +135,8 @@
                 Cookies.set('jwt_token', responseJSON.access_token);
                 Cookies.set('user_id', responseJSON.user_id);
                 console.log("set up cookies completed"); 
-                // let key = Math.random()
-                // console.log(key)
-                goto('/');
+                // goto('/');
+                window.location.href = '/';
             } catch (error) {
                 errorMessage = 'An error occurred while Logging In, Please try again.';
             }

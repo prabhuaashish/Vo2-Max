@@ -81,7 +81,7 @@
               <label for="r1" class="top-label">Recent Race:</label>
               <div class="field-items">
                 <div class="field field-large">
-                    <select id="r1" name="r1">
+                    <select required id="r1" name="r1">
                       <option value=""> </option>
                       <option value="marathon">Marathon</option>
                       <option value="half">Half Marathon</option>
@@ -101,7 +101,7 @@
               <label for="r1t_hours" class="top-label"><span class="m-hide">Recent </span>Race Time:</label>
               <div class="field-items">
                 <div class="field">
-                    <input type="text" name="r1t_hours" id="r1t_hours" inputmode="numeric" pattern="[0-9]*" placeholder="Hour" maxlength="2">
+                    <input type="text" name="r1t_hours" id="r1t_hours" inputmode="numeric" pattern="[0-9]*" placeholder="Hr" maxlength="2">
                 </div><!--  /.field -->
                 <div class="field">
                     <input type="text" name="r1t_minutes" id="r1t_minutes" inputmode="numeric" pattern="[0-9]*" placeholder="Min" maxlength="2">
@@ -136,7 +136,7 @@
               <label for="r2t_hours" class="top-label"><span class="m-hide">Another </span>Race Time: <span class="small">(Optional)</span></label>
               <div class="field-items">
                 <div class="field">
-                    <input type="text" name="r2t_hours" id="r2t_hours" inputmode="numeric" pattern="[0-9]*" placeholder="Hour" maxlength="2">
+                    <input type="text" name="r2t_hours" id="r2t_hours" inputmode="numeric" pattern="[0-9]*" placeholder="Hr" maxlength="2">
                 </div><!--  /.field -->
                 <div class="field">
                     <input type="text" name="r2t_minutes" id="r2t_minutes" inputmode="numeric" pattern="[0-9]*" placeholder="Min" maxlength="2">
@@ -151,7 +151,7 @@
               <label for="mpw" class="top-label">Mileage per week:</label>
               <div class="field-items">
                 <div class="field">
-                    <input type="text" name="mpw" id="mpw" inputmode="numeric" pattern="[0-9.]*">
+                    <input required type="text" name="mpw" id="mpw" inputmode="numeric" pattern="[0-9.]*">
                 </div><!--  /.field -->
 
                 <div class="field field-x-small">
@@ -181,23 +181,26 @@
 
 <style lang="scss">
     .calc-outer-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
     }
   
-    .calc-form {
-      width: 100%;
-      max-width: 800px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      padding: 20px;
+    h1 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+        @include breakpoint.down('md') {
+            font-size: 20px;
+        }
     }
   
     .form-fields {
-      display: flex;
-      flex-direction: column;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
     }
   
     .field-outer {
@@ -205,18 +208,15 @@
       flex-direction: column;
       margin-bottom: 10px;
     }
-  
-    .col-1 {
-      width: 45%;
-    }
-  
-    .col-2 {
-      width: 45%;
+
+    .field-outer input {
+        width: 100%;
+        display: flex;;
     }
   
     .top-label {
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 3px;
     }
   
     .field-items {
@@ -230,16 +230,8 @@
       flex-direction: column;
     }
   
-    .field-large {
-      width: 80%;
-    }
-  
     .field-x-small select {
-      width: 20%;      
-    }
-  
-    .unit {
-      width: 100%;
+      width: 50%;      
     }
   
     .btn-wrap {
@@ -247,24 +239,30 @@
     }
 
     .result {
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
     }
 
     h2 {
         font-size: 24px;
         margin: 10px 0;
+
+        @include breakpoint.down('md') {
+            font-size: 16px;
+        }
     }
 
     p {
         font-size: 18px;
         margin: 10px 0;
+
+        @include breakpoint.down('md') {
+            font-size: 16px;
+        }
     }
     
     select {

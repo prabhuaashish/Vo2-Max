@@ -1,5 +1,3 @@
-<h1>Home Page</h1>
-
 <!-- <script>
 	import { ChevronDown } from "lucide-svelte";
 	import Card from "$lib/components/Card.svelte";

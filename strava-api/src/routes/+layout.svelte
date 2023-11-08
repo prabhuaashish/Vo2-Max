@@ -40,7 +40,7 @@
   <title>{$page.data.title ? ` - ${$page.data.title}` : ''}</title>
 </svelte:head>
 
-{#key $page.url.pathname}
+<!-- {#key $page.url.pathname} -->
 	<div id="main">
 		
 		{#if user}
@@ -58,7 +58,7 @@
 		</div>
 		
 	</div>
-{/key}
+<!-- {/key} -->
 
 <style lang="scss">
 	#main {
