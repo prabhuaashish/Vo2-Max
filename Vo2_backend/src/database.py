@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 # Define your MySQL connection string
 # Replace 'username', 'password', 'hostname', and 'database' with your actual values
-db_uri = 'mysql+pymysql://aashish:Aashish%4099@localhost/endurunz'
+db_uri = 'mysql+pymysql://root:PASSword!23@localhost/endurunz'
 
 
 # Create a SQLAlchemy engine
