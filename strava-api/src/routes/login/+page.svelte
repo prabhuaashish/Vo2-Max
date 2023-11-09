@@ -1,42 +1,17 @@
 <script>
 	import { onMount } from 'svelte';
-    import {error} from '@sveltejs/kit';
-    import Cookies from 'js-cookie';
-    import { goto } from '$app/navigation';
-    import { user } from '$stores/auth';
+    import { enhance } from '$app/forms';
+
+    export let form;
 
 	let container;
-
-    let name = '';
-    let email = '';
-    let password = '';
-
     let errorMessage = '';
-    let signupSuccess = false;
-    let signupErrors = [];
-    let loginErrors = [];
-
-    function clearError() {
-        errorMessage = '';
-    }
-
-    function isValidEmail(email) {
-    // Check if the email contains '@' and '.'
-        if (email.includes('@') && email.includes('.')) {
-            // Check if '@' comes before '.'
-            if (email.indexOf('@') < email.lastIndexOf('.')) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
+    
 	onMount(() => {
 		const signInBtn = document.getElementById('signIn');
 		const signUpBtn = document.getElementById('signUp');
-		const fistForm = document.getElementById('form1');
-		const secondForm = document.getElementById('form2');
+		// const fistForm = document.getElementById('form1');
+		// const secondForm = document.getElementById('form2');
 		container = document.querySelector('.container');
 
 		// Add a class to show the sign-in form by default
@@ -50,138 +25,39 @@
 			container.classList.remove('right-panel-active');
 		});
 
-		fistForm.addEventListener('submit', (e) => e.preventDefault());
-		secondForm.addEventListener('submit', (e) => e.preventDefault());
+		// fistForm.addEventListener('submit', (e) => e.preventDefault());
+		// secondForm.addEventListener('submit', (e) => e.preventDefault());
 	});
 
-    async function signup() {
-        signupErrors = [];
-
-        if (name === '') {
-            signupErrors.push('Name is required');
-        }
-
-        if (email === '') {
-            signupErrors.push('Email is required');
-        } else if (!isValidEmail(email)) {
-            signupErrors.push('Invalid email format');
-        }
-
-        if (password === '') {
-            signupErrors.push('Password is required');
-        } else if (password.length < 6) {
-            signupErrors.push('Password must be at least 6 characters');
-        }
-
-        if (signupErrors.length === 0) {
-            try {
-                const response = await fetch('http://localhost:8000/user', {
-                    method: 'POST',
-                    body: JSON.stringify({ name, email, password }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.status === 201) {
-                    signupSuccess = true;
-                    location.reload()
-
-                } else if (response.status === 400) {
-                    // Validation error
-                    const errorData = await response.json();
-                    errorMessage = errorData.detail;
-
-                } else {
-                    // Handle other errors (network errors, server issues, etc.)
-                    errorMessage = 'An error occurred while signing up. Please try again later.';
-                }
-            } catch (error) {
-                errorMessage = 'An error occurred while signing up. Please try again later.';
-            }
-        }    
-    }
-
-
-    async function login() {
-        loginErrors = [];
-
-        if (email === '') {
-            loginErrors.push('Email is required');
-        } else if (!isValidEmail(email)) {
-            loginErrors.push('Invalid email format');
-        }
-
-        if (password === '') {
-            loginErrors.push('Password is required');
-        }
-
-        if (loginErrors.length === 0) {
-
-            try {
-                const response = await fetch('http://localhost:8000/auth/login', {
-                    method: 'POST',
-                    body: JSON.stringify({ username: email, password: password }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                const responseJSON = await response.json();
-
-                if (responseJSON.error) {
-                    throw error(400, responseJSON.error_description);
-                }
-
-                Cookies.set('jwt_token', responseJSON.access_token);
-                Cookies.set('user_id', responseJSON.user_id);
-                console.log("set up cookies completed"); 
-                // goto('/');
-                window.location.href = '/';
-            } catch (error) {
-                errorMessage = 'An error occurred while Logging In, Please try again.';
-            }
-        }
-    }
-
 </script>
-
 
 
 <body>
 	<div class="container right-panel-active">
 		<!-- Sign Up -->
 		<div class="container__form container--signup">
-			<form class="form" id="form1" on:submit|preventDefault={signup}>
-				<h2 class="form__title">Create Account</h2>
-                {#if signupSuccess}
-                    <div class="success-message">Signup was successful!</div>
-                {:else}
-                    <div class="error-message">{errorMessage}</div>
-                {/if}
-				<input type="text" id="name" placeholder="Name" class="input" bind:value={name} on:input={clearError} />
-                <input type="email" id="signupEmail" placeholder="Email" class="input" bind:value={email} on:input={clearError} />
-                <input type="password" id="signupPassword" placeholder="Password" class="input" bind:value={password} on:input={clearError} />
-                <!-- Display validation errors for the signup form -->
-                {#if signupErrors.length > 0}
-                    <div class="error-message">
-                        <ul>
-                            {#each signupErrors as error (error)}
-                                <li>{error}</li>
-                            {/each}
-                        </ul>
-                    </div>
-                {/if}
 
+			<form class="form" action="?/signup" method="POST">
+
+				<h2 class="form__title">Create Account</h2>
+				<input type="text" id="name" name="name" placeholder="Name" class="input"  required/>
+                <input type="email" id="signupEmail" name="email" placeholder="Email" class="input" required/>
+                <input type="password" id="signupPassword" name="password" placeholder="Password" class="input" required/>
+                <!-- Display error message -->
+                {#if form?.user}
+                    <p class="error">Email already exists</p>
+                {/if}
 				<button type="submit"> Sign Up </button>
 			</form>
 		</div>
 
 		<!-- Sign In -->
 		<div class="container__form container--signin">
-			<form class="form" id="form2" on:submit|preventDefault={login}>
+			<form class="form" action="?/login" method="POST" use:enhance>
 				<h1 class="form__title">Sign In</h1>
+
 				<div class="social-container">
-					<a href="#" class="social"> 
+					<a href="/login" class="social"> 
 						<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512">
 							<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
 						</svg>
@@ -192,18 +68,13 @@
 						</svg>
 					</a>
 				</div>
-				<input type="email" id="signinEmail" placeholder="Email" class="input" bind:value={email} on:input={clearError}/>
-				<input type="password" id="signinPassword" placeholder="Password" class="input" bind:value={password} on:input={clearError}/>
-                <!-- Display validation errors for the login form -->
-                {#if loginErrors.length > 0}
-                    <div class="error-message">
-                        <ul>
-                            {#each loginErrors as error (error)}
-                                <li>{error}</li>
-                            {/each}
-                        </ul>
-                    </div>
-                {/if}
+
+				<input type="email" id="signinEmail" name="email" placeholder="Email" class="input" required/>
+				<input type="password" id="signinPassword" name= "password" placeholder="Password" class="input" required/>
+                <!-- Display error message -->
+                {#if form?.credentials}
+                    <p class="error">Incorrect email or password</p>
+                {/if}     
 
 				<button type="submit"> Sign In </button>
 			</form>
@@ -279,13 +150,6 @@
         margin: 0;
         margin-bottom: 1.25rem;
 		color: black;
-    }
-
-    .link {
-        color: var(--gray);
-        font-size: 0.9rem;
-        margin: 1.5rem 0;
-        text-decoration: none;
     }
 
     .container {
@@ -478,16 +342,8 @@
 		height: 40px;
     }
 
-    .success-message {
-        color: #4CAF50; /* White text color */
-        padding: 10px; /* Padding for some space around the message */
-        text-align: center; /* Center align the text */
-    }
-
-    .error-message {
-        color: #f44336; /* White text color */
-        padding: 10px; /* Padding for some space around the message */
-        text-align: center; /* Center align the text */
+    .error {
+        color: red;
     }
 
 </style>

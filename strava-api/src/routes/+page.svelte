@@ -1,3 +1,4 @@
+<h1>Welcome</h1>
 <!-- <script>
 	import { ChevronDown } from "lucide-svelte";
 	import Card from "$lib/components/Card.svelte";
