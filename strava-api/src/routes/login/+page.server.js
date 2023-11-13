@@ -1,9 +1,10 @@
 import { redirect, error } from '@sveltejs/kit';
 
 let errorMessage = '';
-export const load = async ({}) => {
-    // todo
-};
+
+// export const load = async ({}) => {
+//     // todo
+// };
 
 const signup = async ({request }) => {
     const data = await request.formData();

@@ -5,9 +5,10 @@ from .. import schemas, models
 from fastapi.responses import JSONResponse
 
 
-def calculate_race_time(data: schemas.RaceTimeCalculation, db: Session):
+def calculate_race_time(data: schemas.RaceTimeCalculation, user_id:str, db: Session):
     # Formulas to calculate race time
     # Access the relevant variables from the data parameter
+    print("User ID: ", user_id)
     frace = data.frace
     r1 = data.r1
     r2 = data.r2
@@ -145,7 +146,8 @@ def calculate_race_time(data: schemas.RaceTimeCalculation, db: Session):
         dunits=dunits,
         predicted_time=pt_hms_formatted,
         pace_mile=pace_mile_formatted,
-        pace_km=pace_km_formatted
+        pace_km=pace_km_formatted,
+        user_id=user_id
     )
 
     # Add the instance to the database session and commit

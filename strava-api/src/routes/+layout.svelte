@@ -40,25 +40,23 @@
   <title>{$page.data.title ? ` - ${$page.data.title}` : ''}</title>
 </svelte:head>
 
-<!-- {#key $page.url.pathname} -->
-	<div id="main">
-		
-		{#if user}
-			<div id="topbar" bind:this={topbar}>
-			<div class="topbar-bg" 
-				style:background-color=  {$page.data.color ? $page.data.color : "var(--header-color)"} 
-				style:opacity={`${headerOpacity}`} /> 
-			<Header />
-		</div>
-		{/if}
-		<div id="content">
-			<main id="main-content">
-				<slot />
-			</main>
-		</div>
-		
+<div id="main">
+	
+	{#if user}
+		<div id="topbar" bind:this={topbar}>
+		<div class="topbar-bg" 
+			style:background-color=  {$page.data.color ? $page.data.color : "var(--header-color)"} 
+			style:opacity={`${headerOpacity}`} /> 
+		<Header />
 	</div>
-<!-- {/key} -->
+	{/if}
+	<div id="content">
+		<main id="main-content">
+			<slot />
+		</main>
+	</div>
+	
+</div>
 
 <style lang="scss">
 	#main {

@@ -1,13 +1,14 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, DateTime
 from datetime import datetime
 from sqlalchemy.orm import relationship
+from uuid import uuid4
 
 from .database import Base
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(36), primary_key=True, index=True, default=uuid4)
     name = Column(String(255), index=True, ) 
     email = Column(String(255), unique=True, index=True)
     password = Column(String(255))
@@ -38,7 +39,7 @@ class RaceTimePrediction(Base):
     pace_mile = Column(String(255))
     pace_km = Column(String(255))
 
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(String(36), ForeignKey("users.id"))
 
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
@@ -74,7 +75,7 @@ class PacePrediction(Base):
     matt_fitzgerald = relationship("MattFitzgeraldRaceTimePrediction", back_populates="pace_prediction", uselist=False)
 
     # Relationship to User
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(String(36), ForeignKey("users.id"))
     user = relationship("User", back_populates="pace_predictions")
 
     created_at = Column(DateTime, default=datetime.now)

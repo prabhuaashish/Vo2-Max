@@ -32,7 +32,9 @@ export const handle = async ({ event, resolve }) => {
         const profile = await profileRes.json();
         console.log(profile);
 		
+
         event.locals.user = profile;
+        return await resolve(event);
     }
 
     if (profileRes.status === 401 && refreshToken) {
