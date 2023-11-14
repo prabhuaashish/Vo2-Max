@@ -7,8 +7,8 @@ from fastapi.responses import JSONResponse
 
 def calculate_race_time(data: schemas.RaceTimeCalculation, user_id:str, db: Session):
     # Formulas to calculate race time
+
     # Access the relevant variables from the data parameter
-    print("User ID: ", user_id)
     frace = data.frace
     r1 = data.r1
     r2 = data.r2
@@ -181,8 +181,7 @@ def timeConvert(speed, pace_type):
         # return '' + minutes + ':0' + seconds
         return f"{minutes}:0{seconds}"
 
-
-def calculate_run_types(user_data: schemas.RunType, db:Session):
+def calculate_run_types(user_data: schemas.RunType, db:Session, user_id: str):
     if user_data.units == "km": 
         D = user_data.race_distance* 1000  # Convert to meters
     else:
@@ -210,6 +209,7 @@ def calculate_run_types(user_data: schemas.RunType, db:Session):
         pace_type = user_data.pace_type,
         type = user_data.type,
         vdot = round(vo2_max, 2),
+        user_id=user_id
     )
 
     db.add(run_type_pace_prediction)
@@ -240,78 +240,6 @@ def calculate_run_types(user_data: schemas.RunType, db:Session):
         return vo2_max, matt_fitzgerald_run_types(vo2_max, user_data.pace_type)
     else:
         return vo2_max, daniels_old_run_types(vo2_max, user_data.pace_type)
-
-
-# def calculate_run_types(user_data: schemas.RunType, db: Session, user_id: int):
-#     user = db.query(models.User).filter(models.User.id == user_id).first()
-
-#     if not user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     if user_data.units == "km":
-#         D = user_data.race_distance * 1000  # Convert to meters
-#     else:
-#         D = user_data.race_distance * 1609  # Convert to meters
-
-#     finishTime = (
-#         user_data.finish_time_hours * 60
-#         + user_data.finish_time_minutes
-#         + user_data.finish_time_seconds / 60
-#     )
-
-#     T = finishTime  # Keep time in minutes
-
-#     if T == 0:
-#         # Handle the case where finish_time_minutes is zero
-#         raise HTTPException(status_code=400, detail="Finish time cannot be zero")
-
-#     S = D / T  # Calculate speed in meters per minute
-
-#     vo2_max = (-4.60 + 0.182258 * S + 0.000104 * S ** 2) / (
-#         0.8 + 0.1894393 * math.exp(-0.012778 * T) + 0.2989558 * math.exp(-0.1932605 * T)
-#     )
-
-#     # Create a new instance of the PacePrediction model
-#     run_type_pace_prediction = models.PacePrediction(
-#         recent_race_distance=user_data.race_distance,
-#         units=user_data.units,
-#         finish_time_hours=user_data.finish_time_hours,
-#         finish_time_minutes=user_data.finish_time_minutes,
-#         finish_time_seconds=user_data.finish_time_seconds,
-#         pace_type=user_data.pace_type,
-#         type=user_data.type,
-#         vdot=vo2_max,
-#         user=user,  # Associate the PacePrediction with the user
-#     )
-
-#     db.add(run_type_pace_prediction)
-#     db.commit()
-#     db.refresh(run_type_pace_prediction)
-
-#     if user_data.type == "Daniels_old":
-#         result = models.DanielsOldRaceTimePrediction(**daniels_old_run_types(vo2_max, user_data.pace_type))
-#         run_type_pace_prediction.daniels_old = result  # Associate the DanielsOldRaceTimePrediction
-#     elif user_data.type == "Daniels_new":
-#         result = models.DanielsNewRaceTimePrediction(**daniels_new_run_types(vo2_max, user_data.pace_type))
-#         run_type_pace_prediction.daniels_new = result  # Associate the DanielsNewRaceTimePrediction
-#     elif user_data.type == "Pfitzinger":
-#         result = models.PfitzingerRaceTimePrediction(**pfitzinger_run_types(vo2_max, user_data.pace_type))
-#         run_type_pace_prediction.pfitzinger = result  # Associate the PfitzingerRaceTimePrediction
-#     elif user_data.type == "Matt_Fitzgerald":
-#         result = models.MattFitzgeraldRaceTimePrediction(**matt_fitzgerald_run_types(vo2_max, user_data.pace_type))
-#         run_type_pace_prediction.matt_fitzgerald = result  # Associate the MattFitzgeraldRaceTimePrediction
-
-#     db.commit()
-
-#     if user_data.type == "Daniels_new":
-#         return vo2_max, daniels_new_run_types(vo2_max, user_data.pace_type)
-#     elif user_data.type == "Pfitzinger":
-#         return vo2_max, pfitzinger_run_types(vo2_max, user_data.pace_type)
-#     elif user_data.type == "Matt_Fitzgerald":
-#         return vo2_max, matt_fitzgerald_run_types(vo2_max, user_data.pace_type)
-#     else:
-#         return vo2_max, daniels_old_run_types(vo2_max, user_data.pace_type)
-
 
 def daniels_old_run_types(vo2_max:float, pace_type: str):   
     easy_run_pace = VO2ToVel(vo2_max * 0.7)

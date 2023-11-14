@@ -27,10 +27,10 @@ const signup = async ({request }) => {
 
         if (response.status === 201) {
             throw redirect(303, '/login');
-        } else {
+        } else {async ({ request, cookies }) => {
             const responseData = await response.json();
             throw error(response.status, responseData.detail);
-        }
+        }}
     } catch (error) {
         errorMessage = error.message;
     }
@@ -44,21 +44,23 @@ const login = async ({ request, cookies }) => {
     try {
         const response = await fetch('http://localhost:8000/auth/login', {
             method: 'POST',
+            credentials: 'include',
             body: JSON.stringify({ username: email, password: password }),
             headers: {
                 'Content-Type': 'application/json',
-            },
+            }
+
         });
         if (response.status === 404) {
             return invalid(404, { credentials: true });
         }
+        const setCookie = response.headers.get('set-cookie')
 
-        const responseJSON = await response.json();
-
-        cookies.set('jwt_token', responseJSON.access_token);
-        cookies.set('user_id', responseJSON.user_id);
-
+        cookies.set(setCookie)
+        
+        // Redirect to the home page
         throw redirect(303, '/');
+
     } catch (error) {
         errorMessage = error.message;
     }

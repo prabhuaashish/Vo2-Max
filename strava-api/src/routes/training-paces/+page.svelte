@@ -18,6 +18,7 @@
 
         const response = await fetch('http://localhost:8000/calculate/run-types/', {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
             },

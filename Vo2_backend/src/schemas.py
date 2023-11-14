@@ -11,15 +11,6 @@ class CreateUser(BaseModel):
     class Config:
         orm_mode = True
 
-class UserResponse(BaseModel):
-    user_id: str
-    name: str
-    email: str
-    access_token: str
-    token_type: str
-
-    class Config:
-        orm_mode = True
 
 class UserDetails(BaseModel):
     id: str
@@ -28,12 +19,6 @@ class UserDetails(BaseModel):
 
     class Config:
         orm_mode = True
-
-# class User(BaseModel):
-#     id: str
-
-#     class Config:
-#         orm_mode = True
 
 
 class Login(BaseModel):
@@ -61,7 +46,6 @@ class RunType(BaseModel):
     finish_time_seconds: int
     pace_type: str
     type: str
-    # user: User
 
     class Config:
         orm_mode = True
@@ -89,7 +73,6 @@ class RaceTimeCalculation(BaseModel):
     r2t_seconds: Optional[str] = None
     mpw: str
     dunits: str
-    # user: str = 
 
 
     class Config:

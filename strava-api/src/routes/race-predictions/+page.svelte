@@ -39,6 +39,7 @@
       // Send data to the server
       const response = await fetch('http://localhost:8000/calculate/race-time/', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
