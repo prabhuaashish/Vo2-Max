@@ -69,5 +69,11 @@
 				background-image: linear-gradient(rgba(255, 255, 255, 0.2) 0 0);
 			}
 		}
+
+		@include breakpoint.down('md') {
+			padding: 8px 8px;
+			font-size: functions.toRem(12);
+			margin-top: 1rem;
+		}
 	}
 </style>

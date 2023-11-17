@@ -5,6 +5,8 @@
 	import tippy from "$lib/actions/tippy/tippy.js";
 	import LogoutButton from "./LogoutButton.svelte";
 	import logo from "$lib/assets/logo-1.png";
+  	import Button from "./Button.svelte";
+
   
 	$: user = $page.data.user;
 
@@ -33,42 +35,46 @@
 	  <a href="/training-paces">Training Paces</a>
 	</div>
 	<div class="right">
-	  <div id="profile-button">
-		<button
-		  class="profile-button"
-		  use:tippy={{
-			content: document.getElementById("profile-menu") || undefined,
-			onMount: () => {
-			  const template = document.getElementById("profile-menu");
-			  if (template) {
-				template.style.display = "block";
-			  }
-			},
-			trigger: "click",
-			placement: "bottom-end",
-			interactive: true,
-			theme: "menu",
-			hideOnPopperBlur: true,
-		  }}
-		>
-		  {#if user?.profile && user.profile.length > 0}
-			<img src={user.profile} alt="" />
-		  {:else}
-		  	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
-		  {/if}
+		{#if user}	
+			<div id="profile-button">
+				<button
+				class="profile-button"
+				use:tippy={{
+					content: document.getElementById("profile-menu") || undefined,
+					onMount: () => {
+					const template = document.getElementById("profile-menu");
+					if (template) {
+						template.style.display = "block";
+					}
+					},
+					trigger: "click",
+					placement: "bottom-end",
+					interactive: true,
+					theme: "menu",
+					hideOnPopperBlur: true,
+				}}
+				>
+				{#if user?.profile && user.profile.length > 0}
+					<img src={user.profile} alt="" />
+				{:else}
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-circle"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+				{/if}
 
-		  {#if user?.firstname}
-		  	{#if screenWidth > 500} 
-		  		{user.firstname}
-		  	{/if}
-		  {:else}
-		 	 {#if screenWidth > 500} 
-		  		{user?.name}
-		  	{/if}
-		  {/if}
-		  <ChevronDown class="profile-arrow" size={22} />
-		</button>
-	  </div>
+				{#if user?.firstname}
+					{#if screenWidth > 500} 
+						{user.firstname}
+					{/if}
+				{:else}
+					{#if screenWidth > 500} 
+						{user?.name}
+					{/if}
+				{/if}
+				<ChevronDown class="profile-arrow" size={22} />
+				</button>
+			</div>
+		{:else}
+			<Button element="a" href="/login">Login</Button>
+		{/if}
 	  <div id="profile-menu" style="display: none;">
 		<div class="profile-menu-content">
 		  <ul>
@@ -82,6 +88,7 @@
   </div>
   
   <style lang="scss">
+
 	.content {
 	  padding: 1rem 8rem;
 	  display: flex;
@@ -108,7 +115,6 @@
 		  margin-top: 1rem;
 		}
 	  }
-  
   
 	  :global(html.no-js) & {
 		@include breakpoint.down('md') {
