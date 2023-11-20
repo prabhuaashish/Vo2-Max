@@ -5,8 +5,7 @@
 	import tippy from "$lib/actions/tippy/tippy.js";
 	import LogoutButton from "./LogoutButton.svelte";
 	import logo from "$lib/assets/logo-1.png";
-  	import Button from "./Button.svelte";
-
+	import Button from "./Button.svelte";
   
 	$: user = $page.data.user;
 
@@ -35,7 +34,7 @@
 	  <a href="/training-paces">Training Paces</a>
 	</div>
 	<div class="right">
-		{#if user}	
+		{#if user}
 			<div id="profile-button">
 				<button
 				class="profile-button"
@@ -72,23 +71,22 @@
 				<ChevronDown class="profile-arrow" size={22} />
 				</button>
 			</div>
+			<div id="profile-menu" style="display: none;">
+				<div class="profile-menu-content">
+				<ul>
+					<li><a href="/profile">My Profile</a></li>
+					<!-- <li><a href="/settings">Settings</a></li> -->
+					<li><LogoutButton /></li>
+				</ul>
+				</div>
+			</div>
 		{:else}
 			<Button element="a" href="/login">Login</Button>
 		{/if}
-	  <div id="profile-menu" style="display: none;">
-		<div class="profile-menu-content">
-		  <ul>
-			<li><a href="/profile">My Profile</a></li>
-			<!-- <li><a href="/settings">Settings</a></li> -->
-			<li><LogoutButton /></li>
-		  </ul>
-		</div>
-	  </div>
 	</div>
   </div>
   
   <style lang="scss">
-
 	.content {
 	  padding: 1rem 8rem;
 	  display: flex;
@@ -115,6 +113,7 @@
 		  margin-top: 1rem;
 		}
 	  }
+  
   
 	  :global(html.no-js) & {
 		@include breakpoint.down('md') {
@@ -164,7 +163,7 @@
 		width: 28px;
 		height: 28px;
 		border-radius: 100%;
-		padding-right: 5px;
+		margin-right: 5px;
 	  }
 
 	  svg {

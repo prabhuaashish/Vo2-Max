@@ -216,16 +216,16 @@ def calculate_run_types(user_data: schemas.RunType, db:Session, user_id: str):
     db.commit()
 
     if user_data.type == "Daniels_old":
-        result = models.DanielsOldRaceTimePrediction(**daniels_old_run_types(vo2_max, user_data.pace_type))
+        result = models.DanielsOldRaceTimePrediction(**daniels_old_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id))
         
     elif user_data.type == "Daniels_new":
-        result = models.DanielsNewRaceTimePrediction(**daniels_new_run_types(vo2_max, user_data.pace_type))
+        result = models.DanielsNewRaceTimePrediction(**daniels_new_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id))
         
     elif user_data.type == "Pfitzinger":
-        result = models.PfitzingerRaceTimePrediction(**pfitzinger_run_types(vo2_max, user_data.pace_type))
+        result = models.PfitzingerRaceTimePrediction(**pfitzinger_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id))
         
     elif user_data.type == "Matt_Fitzgerald":
-        result = models.MattFitzgeraldRaceTimePrediction(**matt_fitzgerald_run_types(vo2_max, user_data.pace_type))
+        result = models.MattFitzgeraldRaceTimePrediction(**matt_fitzgerald_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id))
     
     db.add(result)
     db.commit()
@@ -233,15 +233,15 @@ def calculate_run_types(user_data: schemas.RunType, db:Session, user_id: str):
 
 
     if user_data.type == "Daniels_new" :
-        return vo2_max, daniels_new_run_types(vo2_max, user_data.pace_type)
+        return vo2_max, daniels_new_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id)
     elif user_data.type == "Pfitzinger" :
-        return vo2_max, pfitzinger_run_types(vo2_max, user_data.pace_type)
+        return vo2_max, pfitzinger_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id)
     elif user_data.type == "Matt_Fitzgerald" :
-        return vo2_max, matt_fitzgerald_run_types(vo2_max, user_data.pace_type)
+        return vo2_max, matt_fitzgerald_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id)
     else:
-        return vo2_max, daniels_old_run_types(vo2_max, user_data.pace_type)
+        return vo2_max, daniels_old_run_types(vo2_max, user_data.pace_type, run_type_pace_prediction.id)
 
-def daniels_old_run_types(vo2_max:float, pace_type: str):   
+def daniels_old_run_types(vo2_max:float, pace_type: str, id: int):   
     easy_run_pace = VO2ToVel(vo2_max * 0.7)
     tempo_run_pace = VO2ToVel(vo2_max * 0.88)
     vo2_max_pace = VO2ToVel(vo2_max)
@@ -253,9 +253,10 @@ def daniels_old_run_types(vo2_max:float, pace_type: str):
         "vo2_max_pace":     f"{timeConvert(vo2_max_pace, pace_type)} {pace_type}",
         "speed_form_pace":  f"{timeConvert(speed_form_pace, pace_type)} {pace_type}",
         "long_run_pace":    f"{timeConvert(easy_run_pace, pace_type)} - {timeConvert(long_run_pace, pace_type)} {pace_type}",
+        "pace_prediction_id": id
     }
 
-def daniels_new_run_types(vo2_max:float, pace_type: str):
+def daniels_new_run_types(vo2_max:float, pace_type: str, id: int):
     Easy_min = VO2ToVel(vo2_max * 0.59)
     Easy_max = VO2ToVel(vo2_max * 0.74)
     Marathon_min = VO2ToVel(vo2_max * 0.75)
@@ -273,9 +274,10 @@ def daniels_new_run_types(vo2_max:float, pace_type: str):
         "threshold_pace": f"{timeConvert(Threshold_max, pace_type)} - {timeConvert(Threshold_min, pace_type)} {pace_type}",
         "interval_pace": f"{timeConvert(Interval_max, pace_type)} - {timeConvert(Interval_min, pace_type)} {pace_type}",
         "repetition_pace": f"{timeConvert(Repetition_max, pace_type)} - {timeConvert(Repetition_min, pace_type)} {pace_type}",
+        "pace_prediction_id": id
     }
 
-def pfitzinger_run_types(vo2_max:float, pace_type: str):
+def pfitzinger_run_types(vo2_max:float, pace_type: str, id: int):
     Recovery = VO2ToVel(vo2_max * 0.7)
     Aerobic_min = VO2ToVel(vo2_max * 0.64)
     Aerobic_max = VO2ToVel(vo2_max * 0.75)
@@ -295,9 +297,10 @@ def pfitzinger_run_types(vo2_max:float, pace_type: str):
         "marathon_pace": f"{timeConvert(Marathon_max, pace_type)} - {timeConvert(Marathon_min, pace_type)} {pace_type}",
         "lactate_threshold_pace": f"{timeConvert(Lactate_threshold_max, pace_type)} - {timeConvert(Lactate_threshold_min, pace_type)} {pace_type}",
         "vo2max_pace": f"{timeConvert(VO2_max, pace_type)} - {timeConvert(VO2_min, pace_type)} {pace_type}",
+        "pace_prediction_id": id
     }
 
-def matt_fitzgerald_run_types(vo2_max:float, pace_type: str):
+def matt_fitzgerald_run_types(vo2_max:float, pace_type: str, id: int):
     Gray_zone_1 = VO2ToVel(vo2_max * 0.55)
     Low_Aerobic_min = VO2ToVel(vo2_max * 0.55)
     Low_Aerobic_max = VO2ToVel(vo2_max * 0.65)
@@ -320,6 +323,7 @@ def matt_fitzgerald_run_types(vo2_max:float, pace_type: str):
         "threshold_pace": f"{timeConvert(Threshold_max, pace_type)} - {timeConvert(Threshold_min, pace_type)} {pace_type}",
         "gray_zone_3_pace": f"{timeConvert(Gray_zone_3_max, pace_type)} - {timeConvert(Gray_zone_3_min, pace_type)} {pace_type}",
         "vo2max_pace": f"{timeConvert(VO2_max, pace_type)} - {timeConvert(VO2_min, pace_type)} {pace_type}",
+        "pace_prediction_id": id
     }
 
 

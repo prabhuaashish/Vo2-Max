@@ -6,7 +6,7 @@ export const load = ({ data, url }) => {
 		throw redirect(307, '/');
 	}
 	// if (!user && url.pathname !== '/login') {
-	// 	throw redirect(307, '/login');
+	// 	throw redirect(307, '/');
 	// }
 
 	return {

@@ -24,22 +24,22 @@ def run_types(data: schemas.RunType, db: Session = Depends(get_db), user_id: str
 
 
 @router.get("/daniels_old_run_types/")
-def calculate(vo2_max: float, pace_type: str, db: Session = Depends(get_db)):
-    return calculations.daniels_old_run_types(vo2_max, pace_type)
+def calculate(vo2_max: float, pace_type: str, pace_prediction_id: int):
+    return calculations.daniels_old_run_types(vo2_max, pace_type, pace_prediction_id)
 
 
 @router.get("/daniels_new_run_types/")
-def calculate(vo2_max: float, pace_type: str, db: Session = Depends(get_db)):
-    return calculations.daniels_new_run_types(vo2_max, pace_type)
+def calculate(vo2_max: float, pace_type: str, pace_prediction_id: int):
+    return calculations.daniels_new_run_types(vo2_max, pace_type, pace_prediction_id)
 
 
 @router.get("/pfitzinger_run_types/")
-def calculate(vo2_max: float, pace_type: str, db: Session = Depends(get_db)):
-    return calculations.pfitzinger_run_types(vo2_max, pace_type)
+def calculate(vo2_max: float, pace_type: str, pace_prediction_id: int):
+    return calculations.pfitzinger_run_types(vo2_max, pace_type, pace_prediction_id)
 
 
 @router.get("/matt_fitzgerald_run_types/")
-def calculate(vo2_max: float, pace_type: str, db: Session = Depends(get_db)):
-    return calculations.matt_fitzgerald_run_types(vo2_max, pace_type)
+def calculate(vo2_max: float, pace_type: str, pace_prediction_id: int):
+    return calculations.matt_fitzgerald_run_types(vo2_max, pace_type, pace_prediction_id)
 
 

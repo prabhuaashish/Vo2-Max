@@ -1,5 +1,10 @@
-import { redirect} from '@sveltejs/kit';
+import { redirect, error } from '@sveltejs/kit';
 
+let errorMessage = '';
+
+// export const load = async ({}) => {
+//     // todo
+// };
 
 const signup = async ({request }) => {
     const data = await request.formData();
@@ -21,7 +26,7 @@ const signup = async ({request }) => {
         }
 
         if (response.status === 201) {
-            throw redirect(303, '/login');
+            redirect(303, '/login');
         }
     } catch (error) {
         errorMessage = error.message;
@@ -43,18 +48,15 @@ const login = async ({ request, cookies }) => {
             }
 
         });
-        
         if (response.status === 404) {
             return invalid(404, { credentials: true });
         }
-
         const setCookie = response.headers.get('set-cookie')
 
         cookies.set(setCookie)
         
         // Redirect to the home page
-        throw redirect(303, '/');
-
+        redirect(303, '/');
 
     } catch (error) {
         errorMessage = error.message;

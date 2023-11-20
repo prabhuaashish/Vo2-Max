@@ -9,5 +9,6 @@ export const POST = ({ cookies, request }) => {
 	if (request.headers.get('accept') === 'application/json') {
 		return json({ success: true });
 	}
-	throw redirect(303, '/login');
+    
+	redirect(303, '/login');
 };

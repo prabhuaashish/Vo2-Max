@@ -25,6 +25,7 @@
 		"modern-normalize": "^2.0.0",
 		"nprogress": "^0.2.0",
 		"svelte-kit": "^1.2.0",
+		"svelte-routing": "^2.6.0",
 		"tippy.js": "^6.3.7"
 	}
 }
