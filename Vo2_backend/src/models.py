@@ -12,6 +12,7 @@ class User(Base):
     name = Column(String(255), index=True, ) 
     email = Column(String(255), unique=True, index=True)
     password = Column(String(255))
+    strava_id = Column(String(255))
 
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)

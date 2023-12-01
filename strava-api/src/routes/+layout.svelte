@@ -42,14 +42,12 @@
 
 <div id="main">
 	
-	<!-- {#if user} -->
-		<div id="topbar" bind:this={topbar}>
-			<div class="topbar-bg" 
-				style:background-color=  {$page.data.color ? $page.data.color : "var(--header-color)"} 
-				style:opacity={`${headerOpacity}`} /> 
-			<Header />
-		</div>
-	<!-- {/if} -->
+	<div id="topbar" bind:this={topbar}>
+		<div class="topbar-bg" 
+			style:background-color=  {$page.data.color ? $page.data.color : "var(--header-color)"} 
+			style:opacity={`${headerOpacity}`} /> 
+		<Header />
+	</div>
 	<div id="content">
 		<main id="main-content">
 			<slot />
@@ -63,9 +61,8 @@
 		#topbar {
         position: fixed;
         height: var(--header-height);
-        padding: 0 15px;
         display: flex;
-        align-items: center;
+		align-items: center;
         width: 100%;
         z-index: 100;
         :global(html.no-js) & {
@@ -87,23 +84,21 @@
           z-index: -1;
           background-image: linear-gradient(rgba(0, 0, 0, 0.2)0 0 );
         }
-        @include breakpoint.up('md') {
-          padding: 0 30px;
-        }
+
       }
 		#content {
 			padding: 6rem 11rem;
 			main#main-content {
-				padding: 30px 15px 60px;
+				padding-top: 30px;
 				@include breakpoint.up('md') {
 					padding: 30px 30px 60px;
 				}
 			}
 			@include breakpoint.down('md') {
-			padding: 4rem 2rem;
+				padding: 4rem 2rem;
 			}
 			@include breakpoint.down('lg') {
-			padding: 4rem 2rem;
+				padding: 4rem 2rem;
 			}
 		}
 	}

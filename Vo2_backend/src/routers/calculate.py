@@ -12,14 +12,24 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.post("/race-time/")
-def race_time(data: schemas.RaceTimeCalculation, db: Session = Depends(get_db), user_id: str = Cookie()):
-    race_predictions =  calculations.calculate_race_time(data, user_id, db)
+@router.post("/save-race-time/")
+def save_race_time(data: schemas.RaceTimeCalculation, db: Session = Depends(get_db), user_id: str = Cookie()):
+    race_predictions =  calculations.save_race_time(data, user_id, db)
     return race_predictions
 
+@router.post("/race-time/")
+def race_time(data: schemas.RaceTimeCalculation):
+    race_predictions = calculations.calculate_race_time(data)
+    return race_predictions
+
+@router.post("/save-run-types/")
+def save_run_types(data: schemas.RunType, db: Session = Depends(get_db), user_id: str = Cookie()):
+    run_predictions = calculations.save_run_types(data, db, user_id)
+    return run_predictions
+
 @router.post("/run-types/")
-def run_types(data: schemas.RunType, db: Session = Depends(get_db), user_id: str = Cookie()):
-    run_predictions = calculations.calculate_run_types(data, db, user_id)
+def run_types(data: schemas.RunType):
+    run_predictions = calculations.calculate_run_types(data)
     return run_predictions
 
 

@@ -1,10 +1,4 @@
-import { redirect, error } from '@sveltejs/kit';
-
-let errorMessage = '';
-
-// export const load = async ({}) => {
-//     // todo
-// };
+import {fail, redirect} from '@sveltejs/kit';
 
 const signup = async ({request }) => {
     const data = await request.formData();
@@ -12,25 +6,22 @@ const signup = async ({request }) => {
     const email = data.get('email');
     const password = data.get('password');
 
-    try {
-        const response = await fetch('http://localhost:8000/user', {
-            method: 'POST',
-            body: JSON.stringify({ name, email, password }),
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+    const response = await fetch('http://localhost:8000/user', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
 
-        if (response.status === 400) {
-            return invalid(400,{user: true})
-        }
-
-        if (response.status === 201) {
-            redirect(303, '/login');
-        }
-    } catch (error) {
-        errorMessage = error.message;
+    if (response.status === 400) {
+        return fail(400, {user:true})
     }
+
+    if (response.status === 201) {
+        return {created:true}
+    }
+
 };
 
 const login = async ({ request, cookies }) => {
@@ -38,29 +29,27 @@ const login = async ({ request, cookies }) => {
     const email = data.get('email');
     const password = data.get('password');
 
-    try {
-        const response = await fetch('http://localhost:8000/auth/login', {
-            method: 'POST',
-            credentials: 'include',
-            body: JSON.stringify({ username: email, password: password }),
-            headers: {
-                'Content-Type': 'application/json',
-            }
-
-        });
-        if (response.status === 404) {
-            return invalid(404, { credentials: true });
+    const response = await fetch('http://localhost:8000/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({ username: email, password: password }),
+        headers: {
+            'Content-Type': 'application/json',
         }
-        const setCookie = response.headers.get('set-cookie')
 
-        cookies.set(setCookie)
-        
-        // Redirect to the home page
-        redirect(303, '/');
+    });
 
-    } catch (error) {
-        errorMessage = error.message;
+    if (response.status === 404) {
+        return fail(404, {credentials:true})
     }
+    
+    const setCookie = response.headers.get('set-cookie')
+
+    cookies.set(setCookie)
+    
+    // Redirect to the home page
+    throw redirect(303, '/');
+
 };
 
 export const actions = {

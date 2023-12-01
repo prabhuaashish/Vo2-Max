@@ -1,8 +1,7 @@
 import { STRAVA_BASE_URL } from '$env/static/private';
-import { redirect } from '@sveltejs/kit';
-import { url } from '$app/environment';
+import { redirect} from '@sveltejs/kit';
 
-export const handle = async ({ event, resolve }) => {
+export const handle = async ({ event, resolve}) => {
     const jwtToken = event.cookies.get('jwt_token');
     const accessToken = event.cookies.get('access_token');
     const refreshToken = event.cookies.get('refresh_token');
@@ -13,6 +12,7 @@ export const handle = async ({ event, resolve }) => {
     }
 
     let profileRes;
+    let userRes
 
     if (accessToken) {
         profileRes = await fetch(`${STRAVA_BASE_URL}/athlete`, {
@@ -21,20 +21,42 @@ export const handle = async ({ event, resolve }) => {
                 Authorization: `Bearer ${accessToken}`
             }
         });
+        if (profileRes.ok) {
+            // get the profile
+            const profile = await profileRes.json();
+            
+            // save the profile
+            const name = profile.firstname + ' ' + profile.lastname
+            const strava_id = profile.id
+        
+            const response = await fetch('http://localhost:8000/strava-user', {
+                method: 'POST',
+                body: JSON.stringify({ name, strava_id }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            const userData = await fetch(`http://localhost:8000/strava-user/${strava_id}`, {
+                method: 'GET',
+            });
+    
+            if (userData.ok) {
+                const user = await userData.json();
+                event.locals.user = user;
+                return await resolve(event);
+            }
+        }
+
     } else {
-        profileRes = await fetch(`http://localhost:8000/user/${user_id}`, {
+        userRes = await fetch(`http://localhost:8000/user/${user_id}`, {
             method: 'GET'
         });
-    }
-
-    if (profileRes.ok) {
-        // get the profile
-        const profile = await profileRes.json();
-        console.log(profile);
-		
-
-        event.locals.user = profile;
-        return await resolve(event);
+        if (userRes.ok) {
+            const user = await userRes.json();
+            event.locals.user = user;
+            return await resolve(event);
+        }
     }
 
     if (profileRes.status === 401 && refreshToken) {

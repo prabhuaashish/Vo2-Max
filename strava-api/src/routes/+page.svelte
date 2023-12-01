@@ -1,83 +1,161 @@
-<h1>Welcome</h1>
-
-<!-- <script>
-	import { ChevronDown } from "lucide-svelte";
+<script>
+	import { ChevronRight, ChevronLeft } from "lucide-svelte";
 	import Card from "$lib/components/Card.svelte";
+	import { onMount } from 'svelte';
 
 	export let data;
 
-    // $:console.log(data)
 
 	let sections = [];
 
 	$: {
-		if (data.activities) {
+
+		if (data?.records?.race_records) {
 			sections.push({
-				title: 'Activities',
-				path: '/sections/activities',
-				items: data.activities
+				title: 'Race Predictions',
+				path: '/sections/race-predictions',
+				items: data.records.race_records
 			});
 		}
-		// if (data.stats) {
-		// 	sections.push({
-		// 		title: 'Stats',
-		// 		path: '/sections/stats',
-		// 		items: data.stats
-		// 	});
-		// }
+
+		if (data?.records?.pace_records) {
+			sections.push({
+				title: 'Pace Predictions',
+				path: '/sections/pace-predictions',
+				items: data.records.pace_records
+			});
+		}
+
 	}
 
-// Pace function
-	function calculatePaceFromSpeed(averageSpeed) {
-        const paceInMinutesPerKm = 60 / (averageSpeed * 3.6);
-
-        const minutes = Math.floor(paceInMinutesPerKm);
-        const seconds = Math.round((paceInMinutesPerKm - minutes) * 60);
-
-        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+	// Date and Time function
+	function formatDate(dateTimeString) {
+		const options = {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			// hour: 'numeric',
+			// minute: 'numeric',
+			// hour12: true
+		};
+	
+		return new Date(dateTimeString).toLocaleString(undefined, options);
     }
-// Time function
-	function formatElapsedTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const remainingSeconds = seconds % 60;
-        return `${minutes}m ${remainingSeconds}s`;
-    }
+
+	onMount(() => {
+		sections.forEach((section, index) => {
+			const prevButton = document.getElementById(`prev-button-${index}`);
+			const nextButton = document.getElementById(`next-button-${index}`);
+			const scrollContainer = document.getElementById(`scroll-container-${index}`);
+			const gridItems = document.querySelectorAll(`.grid-item-${index}`);
+
+			let currentIndex = 0;
+
+			function scrollSection(direction) {
+				if (direction) {
+					currentIndex++;
+				} else {
+					currentIndex--;
+				}
+				scrollContainer.scrollTo({
+					left: currentIndex * gridItems[0].offsetWidth,
+					behavior: 'smooth'
+				});
+			}
+
+			prevButton.addEventListener('click', () => {
+				scrollSection(false);
+			});
+
+			nextButton.addEventListener('click', () => {
+				scrollSection(true);
+			});
+		});
+	});
+
 </script>
 
-
-{#each sections as section}
-	<section class="content-row">
-		<div class="content-row-header">
+{#each sections as section, index}
+	<section class="content-row" >
+		<div class="content-row-header" >
 			<div class="left">
 				<h2 class="section-title">{section.title}</h2>
 			</div>
-			<div class="right">
-				<ChevronDown size={26} />
+			<div class="right" >
+				<button id={`prev-button-${index}`}>
+					<ChevronLeft size={24} />
+				</button>
+				<button id={`next-button-${index}`}>
+					<ChevronRight size={24} />
+				</button>
 			</div>
 		</div>
 		<div class="grid-items">
-			{#each section.items as item}
-				<div class="grid-item" style="background-color: black;">
-					<Card item={item}>
-						<div class="content">
-							<p><span>Distance</span> {(item.distance / 1000).toFixed(2)} km</p>
-							<p><span>Pace</span> {calculatePaceFromSpeed(item.average_speed)} /km</p>
-							<p><span>Time</span> {formatElapsedTime(item.elapsed_time)}</p>
-						</div>
-					</Card>
-				</div>
-			{/each}
+			<div class="scroll-container" id={`scroll-container-${index}`}>
+				{#each section.items as item, itemIndex}
+					<div class={`grid-item grid-item-${index}`} id={`grid-item-${index}-${itemIndex}`}>
+						<Card item={item} >
+							<div class="content" >
+								{#if section.title === 'Pace Predictions'}
+									<p><span>Type</span> {item.type}</p>
+									<div class="type_content">
+										{#if item.daniels_old}
+											<p><span>Vo2 Max Pace:</span> {item.daniels_old.vo2_max_pace}</p>
+											<p><span>Created On</span> {formatDate(item.created_at)}</p>
+										{/if}
+
+										{#if item.daniels_new}
+											<p><span>Threshold Pace:</span> {item.daniels_new.threshold_pace}</p>
+											<p><span>Created On</span> {formatDate(item.created_at)}</p>
+										{/if}
+										
+										{#if item.pfitzinger}
+											<p><span>Vo2max Pace:</span> {item.pfitzinger.vo2max_pace}</p>
+											<p><span>Created On</span> {formatDate(item.created_at)}</p>
+										{/if}
+										
+										{#if item.matt_fitzgerald}
+											<p><span>Vo2max Pace:</span> {item.matt_fitzgerald.vo2max_pace}</p>
+											<p><span>Created On</span> {formatDate(item.created_at)}</p>
+										{/if}
+									</div>
+
+								{/if}
+								{#if section.title === 'Race Predictions'}
+									<div class="middle">
+										<p><span>Predicted Time </span> {item.predicted_time}</p>
+									</div>
+									<div class="bottom">
+										<p class="pace"><span>Predicted Pace</span> {item.pace_km}</p>
+										<p><span>Created On</span> {formatDate(item.created_at)}</p>
+									</div>
+								{/if}
+
+							</div>
+						</Card>
+					</div>
+				{/each}
+			</div>
 		</div>
 	</section>
 {/each}
 
 <style lang="scss">
+	.right {
+		button {
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
+			color: #fff;
+		}
+	}
 	.content-row {
 		.content-row-header {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			margin-bottom: 20px;
+			margin-top: 20px;
 			.section-title {
 				font-size: functions.toRem(22);
 				font-weight: 600;
@@ -85,13 +163,49 @@
 			}
 		}
 		.content {
-			display: flex;
-			justify-content: space-between;
 			span {
 				display: block;
 				color: var(--light-gray);
 				font-size: functions.toRem(14);
 			}
+			.bottom, .middle, .type_content {
+				display: flex;
+				justify-content: space-between;
+			}
+
+		}
+
+		.grid-items {
+			// overflow: hidden; 
+			overflow-x: auto; // Enable horizontal scrolling
+			display: flex;    // Make the container a flex containers
+			white-space: nowrap; // Disable wrapping
+			position: relative;
+			
+			.scroll-container {
+				display: flex;
+				white-space: nowrap;
+				overflow-x: auto;
+				scrollbar-width: thin;
+				scrollbar-color: transparent transparent;
+
+				&::-webkit-scrollbar {
+					width: 10px;
+				}
+
+				&::-webkit-scrollbar-thumb {
+					background-color: transparent;
+				}
+
+				&::-webkit-scrollbar-track {
+					background-color: transparent;
+				}
+
+			}
+			.grid-item {
+				flex: 0 0 auto; // Ensure that each card does not grow and shrink
+				margin-right: 20px;
+			}
 		}
 	}
-</style> -->
+</style>

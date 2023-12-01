@@ -2,10 +2,9 @@
 	import { onMount } from 'svelte';
     import { enhance } from '$app/forms';
 
-    export let form;
+    export let form = {};
 
 	let container;
-    let errorMessage = '';
     
 	onMount(() => {
 		const signInBtn = document.getElementById('signIn');
@@ -25,28 +24,35 @@
 			container.classList.remove('right-panel-active');
 		});
 
-		// fistForm.addEventListener('submit', (e) => e.preventDefault());
-		// secondForm.addEventListener('submit', (e) => e.preventDefault());
 	});
+    
+    function handleSignupSuccess() {
+        form = {}; // Clear form fields
+    }
 
 </script>
 
 
-<body>
+<div class="body">
 	<div class="container right-panel-active">
 		<!-- Sign Up -->
 		<div class="container__form container--signup">
 
-			<form class="form" action="?/signup" method="POST">
+			<form class="form" action="?/signup" method="POST" use:enhance on:submit="{handleSignupSuccess}">
 
 				<h2 class="form__title">Create Account</h2>
-				<input type="text" id="name" name="name" placeholder="Name" class="input"  required/>
-                <input type="email" id="signupEmail" name="email" placeholder="Email" class="input" required/>
-                <input type="password" id="signupPassword" name="password" placeholder="Password" class="input" required/>
-                <!-- Display error message -->
+
                 {#if form?.user}
-                    <p class="error">Email already exists</p>
+                    <p class="error">Email already in use.</p>
                 {/if}
+
+                {#if form?.created}
+                    <p class="success">SignUp Successful. Please SignIn</p>
+                {/if}
+
+				<input type="text" id="name" name="name" placeholder="Name" class="input"  required on:input={() => (form.user = false)}/>
+                <input type="email" id="signupEmail" name="email" placeholder="Email" class="input" required on:input={() => (form.user = false)}/>
+                <input type="password" id="signupPassword" name="password" placeholder="Password" class="input" required on:input={() => (form.user = false)}/>
 				<button type="submit"> Sign Up </button>
 			</form>
 		</div>
@@ -62,20 +68,20 @@
 							<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z"/>
 						</svg>
 					</a>
-					<a href="/api/auth/login" class="social"> 
+					<a href="/api/auth/svelte-login" class="social"> 
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-strava" viewBox="0 0 16 16">
 							<path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766L6.731 0zm4.694 9.125-1.372 2.756L8.66 9.125H6.547L10.053 16l3.484-6.875h-2.112z"/>
 						</svg>
 					</a>
 				</div>
 
-				<input type="email" id="signinEmail" name="email" placeholder="Email" class="input" required/>
-				<input type="password" id="signinPassword" name= "password" placeholder="Password" class="input" required/>
-                <!-- Display error message -->
-                {#if form?.credentials}
-                    <p class="error">Incorrect email or password</p>
-                {/if}     
+				<input type="email" id="signinEmail" name="email" placeholder="Email" class="input" required on:input={() => (form.credentials = false)}/>
+				<input type="password" id="signinPassword" name= "password" placeholder="Password" class="input" required on:input={() => (form.credentials = false)}/>
 
+                {#if form?.credentials}
+                    <p class="error">Invalid email or password.</p>
+                {/if}
+  
 				<button type="submit"> Sign In </button>
 			</form>
 		</div>
@@ -96,10 +102,10 @@
 			</div>
 		</div>
 	</div>
-</body>
+</div>
 
 
-<style>
+<style lang="scss">
     :root {
         /* COLORS */
         --white: #e9e9e9;
@@ -115,26 +121,36 @@
             Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     }
 
-    body {
-        /* background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");
-        background-attachment: fixed;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover; */
+    .body {
         display: grid;
         height: 50vh;
 		width: 50vw;
-		margin-left: 8%;
-        padding: 0;
+		margin-left: 14vw;
+        margin-top: 10vh;
+        @include breakpoint.down('md') {
+            margin-left: 0;
+            margin-top: 5vh;
+            width: 100%;
+            height: 50vh;
+        }
     }
 
+
 	h1 {
-	font-weight: bold;
-	margin: 0;
+        font-weight: bold;
+        margin: 0;
+
+        @include breakpoint.down('md') {
+            font-size: 20px;
+        }
 	}
 
 	h2 {
 		text-align: center;
+
+        @include breakpoint.down('md') {
+            font-size: 20px;
+        }
 	}
 
 	p {
@@ -143,6 +159,10 @@
 		line-height: 20px;
 		letter-spacing: 0.5px;
 		margin: 20px 0 30px;
+
+        @include breakpoint.down('md') {
+            font-size: 12px;
+        }
 	}
 
 
@@ -150,6 +170,10 @@
         margin: 0;
         margin-bottom: 1.25rem;
 		color: black;
+
+        @include breakpoint.down('md') {
+            font-size: 20px;
+        }
     }
 
     .container {
@@ -161,7 +185,7 @@
         max-width: var(--max-width);
         overflow: hidden;
         position: relative;
-        width: 100%;
+        width: 100%; 
     }
 
     .container__form {
@@ -217,7 +241,7 @@
         top: 0;
         transition: transform 0.6s ease-in-out;
         width: 50%;
-        z-index: 100;
+        z-index: 10;
     }
 
     .container.right-panel-active .container__overlay {
@@ -276,6 +300,12 @@
 
 	.social-container {
 		margin: 20px 0;
+
+        @include breakpoint.down('md') {
+            display: flex;
+            justify-content: center;
+            align-items: center;            
+        }
 	}
 
 	.social-container a {
@@ -290,35 +320,53 @@
 	}
 
     button {
+        box-sizing: border-box;
         background-color: #FF4B2B;
-        /* background-image: linear-gradient(90deg, var(--blue) 0%, var(--lightblue) 74%); */
         border-radius: 20px;
         border: 1px solid #FF4B2B;
         color: white;
         cursor: pointer;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         font-weight: bold;
         letter-spacing: 0.1rem;
         padding: 0.9rem 4rem;
         text-transform: uppercase;
         transition: transform 80ms ease-in;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+
+        &:active {
+            transform: scale(0.95);
+        }
+
+        &:focus {
+            outline: none;
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+        }
+
+        @include breakpoint.down('md') {
+            font-size: 0.8rem;
+            font-weight: bold;
+            letter-spacing: 0.1rem;
+            padding: 0.8rem 3.5rem;
+            width: 50%;
+        }
     }
 
     .form > button {
         margin-top: 1.5rem;
     }
 
-    button:active {
-        transform: scale(0.95);
-    }
-
-    button:focus {
-        outline: none;
-    }
     button.btn{
         background-color: transparent;
         border-color: #FFFFFF;
-
     } 
 
 
@@ -331,6 +379,10 @@
         padding: 0 3rem;
         height: 100%;
         text-align: center;
+
+        @include breakpoint.down('md') {
+            padding: 0 1rem;
+        }
     }
 
     .input {
@@ -340,11 +392,19 @@
         margin: 0.5rem 0;
         width: 100%;
 		height: 40px;
+        
     }
 
     .error {
         color: red;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
     }
 
+    .success {
+        color: green;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
 
 </style>

@@ -1,15 +1,16 @@
-// import fetchRefresh from '$lib/helpers/fetch-refresh.js';
+import { redirect } from '@sveltejs/kit';
 
-// export const load = async({fetch: _fetch, parent}) => {
-//     const fetch = (path) => fetchRefresh(_fetch, path);
-//     const {user} = await parent();
-//     const stats = fetch(`api/strava/athletes/${user?.id}/stats`)
-//     const activities = fetch('api/strava/athlete/activities?before=1692263347&after=1642749315')
-
-//     const [statsRes, activitiesRes] = await Promise.all([stats, activities])
-
-//     return {
-//         stats: statsRes.ok ? statsRes.json() : undefined,
-//         activities: activitiesRes.ok ? activitiesRes.json() : undefined
-//     }
-// }
+export const load = async ({ fetch, parent }) => {
+    const {user} = await parent();
+    if(!user) {
+        throw redirect(302, '/login');
+    }   
+    const records = await fetch(`http://localhost:8000/${user?.id}/records`);
+  
+    const recordsRes = await records;
+    const recordsData = recordsRes.ok ? await recordsRes.json() : undefined;
+    return {
+        records: recordsData
+    };
+  };
+  

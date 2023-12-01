@@ -1,5 +1,9 @@
 <script>
     import Button from '../../lib/components/Button.svelte';
+    import { page } from "$app/stores";
+    import {goto} from "$app/navigation";
+
+    $: user = $page.data.user;
 
     let raceTimeResult = null;
   
@@ -51,6 +55,57 @@
         raceTimeResult = result;
       }
     }
+
+    async function saveRaceTime() {
+      // Get the values of the form fields by their IDs
+      const frace = document.getElementById('frace').value;
+      const r1 = document.getElementById('r1').value;
+      const r1t_hours = document.getElementById('r1t_hours').value;
+      const r1t_minutes = document.getElementById('r1t_minutes').value;
+      const r1t_seconds = document.getElementById('r1t_seconds').value;
+      const r2 = document.getElementById('r2').value;
+      const r2t_hours = document.getElementById('r2t_hours').value;
+      const r2t_minutes = document.getElementById('r2t_minutes').value;
+      const r2t_seconds = document.getElementById('r2t_seconds').value;
+      const mpw = document.getElementById('mpw').value;
+      const dunits = document.getElementById('dunits').value;
+  
+      // Create the data object
+      const data = {
+        frace,
+        r1,
+        r1t_hours,
+        r1t_minutes,
+        r1t_seconds,
+        mpw,
+        dunits,
+      };
+
+      if (r2) {
+        // Only include r2-related fields when r2 is not null
+        data.r2 = r2;
+        data.r2t_hours = r2t_hours;
+        data.r2t_minutes = r2t_minutes;
+        data.r2t_seconds = r2t_seconds;
+      }
+           
+      // Send data to the server
+      const response = await fetch('http://localhost:8000/calculate/save-race-time/', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+  
+      if (response.ok) {
+        const result = await response.json();
+        raceTimeResult = result;
+        goto('/');
+      }
+    }
+
 </script>
   
   
@@ -165,8 +220,13 @@
           </div><!--  /.field-outer -->
         </div><!--  /.form fields -->
 
-        <div class="btn-wrap field-outer">
+        <div class="btn-wrap">
           <Button on:click={calculateRaceTime}>Calculate</Button>
+          {#if user}
+            <Button on:click={saveRaceTime} >Save</Button> 
+          {:else}  
+            <Button disabled title="please login to save">Save</Button>
+          {/if}
         </div>
     </form>
 </div>
@@ -236,12 +296,15 @@
     }
   
     .btn-wrap {
-      align-items: center;
+      display: flex;
+      justify-content:space-evenly;
     }
 
     .result {
-      padding: 15px;
-      border: 1px solid #ddd;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
       border-radius: 5px;
       margin-top: 20px;
       display: flex;

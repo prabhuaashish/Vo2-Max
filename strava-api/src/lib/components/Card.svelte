@@ -1,81 +1,51 @@
 <script>
-	import {page} from "$app/stores";
-
-
     export let item;
-	$: user = $page.data.user;
-
-	// Date and Time function
-	function formatDate(dateTimeString) {
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true
-        };
-        
-        return new Date(dateTimeString).toLocaleString(undefined, options);
-    }
 </script>
 
-<div class="card {item.type}">
-	<div class="profile">
-		<div class = "cover">
-			{#if user?.profile && user.profile.length > 0}
-			<img src={user.profile}  alt="" />
-			{/if}
-		</div>
-		<div class="info">
-			<h4>{user.firstname} {user.lastname}</h4>
-			<p>{formatDate(item.start_date)}</p>
-		</div>
-	</div>
-	<h4> <a href="activity/{item.id}" title={item.name}>{item.name}</a> </h4>
+<div class="card">
+	{#if item.goal_race}
+		<h2> <a href="race-records/{item.id}"><span>Goal : </span> {item.goal_race}</a> </h2>
+	{/if}
+
+	{#if item.vdot}
+		<h2> <a href="pace-records/{item.id}"><span>VDOT : </span> {item.vdot}</a> </h2>
+	{/if}
+	
 	<slot></slot>
 </div>
 
 <style lang="scss">
 	.card {
 		background-color: var(--dark-gray);
-		padding: 10px;
-		box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+		padding: 20px;
+		// box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
 		border-radius: 4px;
 		transition: background 0.3s;
 		position: relative;
-		.profile {
-			display: flex;
-			align-items: center;
-			padding-bottom: 10px;
-			.cover {
-				padding: 10px;
-				padding-left: 0;
-			}
-			.info {
-				padding: 10px;
-				padding-left: 0;
-			}
-		}
-		img {
-			width: 50px;
-			height: 50px;
-			border-radius: 100%;
-			margin-right: 10px;
-		}
+		min-width: 300px;
+		// min-height: 240px;
+
 		&:hover {
 			background-color: var(--medium-gray);
 			.cover-placeholder {
 				background-color: var(--dark-gray);
 			}
 		}
-		h4 {
+
+		h2 {
 			margin: 0 0 10px;
-			font-size: functions.toRem(16);
-			font-weight: 600;
+			font-size: functions.toRem(17);
+			font-weight: 500;
 			line-height: 1;
+			letter-spacing: 1px;
+
+			span {
+				color: var(--light-gray);
+			}
+
 			a {
 				text-decoration: none;
+				text-transform: capitalize;
 				color: var(--text-color);
 				&:focus-visible {
 					outline: none;
@@ -94,11 +64,6 @@
 				}
 			}
 		}
-		p {
-			position: relative;
-			margin: 0;
-			color: var(--light-gray);
-			font-size: functions.toRem(14);
-		}
 	}
+
 </style>

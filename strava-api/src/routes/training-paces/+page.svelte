@@ -1,10 +1,14 @@
 <script>
     import Button from '../../lib/components/Button.svelte';
+    import { page } from "$app/stores";
+    import {goto} from "$app/navigation";
+
+    $: user = $page.data.user;
 
     let resultData = null;
     let type = null
 
-    async function calculateVDOT() {
+    async function calculatePace() {
         // Get the values of the form fields directly
         const raceDistanceValue = parseFloat(document.getElementById('raceDistance').value);
         const unitsValue = document.getElementById('units').value;
@@ -36,6 +40,44 @@
         if (response.ok) {
             const data = await response.json();
             resultData = data;
+        } else {
+            console.error('Error:', response.statusText);
+        }
+    }
+
+    async function savePace() {
+        // Get the values of the form fields directly
+        const raceDistanceValue = parseFloat(document.getElementById('raceDistance').value);
+        const unitsValue = document.getElementById('units').value;
+        const finishTimeHoursValue = parseInt(document.getElementById('finishTimeHours').value) || 0;
+        const finishTimeMinutesValue = parseInt(document.getElementById('finishTimeMinutes').value) || 0;
+        const finishTimeSecondsValue = parseInt(document.getElementById('finishTimeSeconds').value) || 0;
+        const paceTypeValue = document.getElementById('paceType').value;
+        const typeValue = document.getElementById('type').value;
+
+        type = typeValue
+
+        const response = await fetch('http://localhost:8000/calculate/save-run-types/', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                race_distance: raceDistanceValue,
+                units: unitsValue,
+                finish_time_hours: finishTimeHoursValue,
+                finish_time_minutes: finishTimeMinutesValue,
+                finish_time_seconds: finishTimeSecondsValue,
+                pace_type: paceTypeValue,
+                type: typeValue,
+            }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            resultData = data;
+            goto('/');
         } else {
             console.error('Error:', response.statusText);
         }
@@ -86,7 +128,12 @@
             </select>
         </div>
         <div class="btn">
-            <Button on:click={calculateVDOT}>Calculate</Button>
+            <Button on:click={calculatePace}>Calculate</Button>
+          {#if user}
+            <Button on:click={savePace} >Save</Button> 
+          {:else}  
+            <Button disabled title="please login to save">Save</Button>
+          {/if}
         </div>
     </form>
 </div>
@@ -205,24 +252,22 @@
 
     .btn {
         display: flex;
-        justify-content: center;
+        justify-content:space-evenly;
+        margin-top: 15px;
     }
 
     .result {
         border: 1px solid #ccc;
         border-radius: 5px;
-        max-width: 800px;
-        margin: 20px auto;
+        max-width: 700px;
+        margin: 0 auto;
         padding: 20px;
-    }
+        margin-top: 20px;
 
-    /* .result-item {
-        margin: 20px 0;
-        padding: 10px;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    } */
+        @include breakpoint.down('md') {
+            padding: 10px;
+        }
+    }
 
     .result-item h3 {
         font-size: 18px;
