@@ -16,7 +16,7 @@
 <div class="content">
 	<div class="left">
 	  <a href="/">
-		<img src={logo} class="logo" alt="Strava" />
+		<img src={logo} class="logo" alt="Endurunz" />
 	  </a>
 	</div>
 	<div class="middle-right">
